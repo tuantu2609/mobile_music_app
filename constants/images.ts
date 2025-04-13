@@ -8,6 +8,8 @@ import banner4 from "@/assets/images/banner4.png";
 import banner5 from "@/assets/images/banner5.png";
 import song from "@/assets/images/song.png";
 import mix from "@/assets/images/mix.png";
+import song2 from "@/assets/images/song2.jpg";
+import bg2 from "@/assets/images/bg2.jpg";
 
 export const images = {
   bg,
@@ -20,4 +22,6 @@ export const images = {
   banner5,
   song,
   mix,
+  song2,
+  bg2,
 };

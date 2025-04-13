@@ -9,10 +9,10 @@ const MixCard = ({ image, artists }: MixCardProps) => {
   const artistNames = artists.map((a) => a.name).join(", ");
 
   return (
-    <View className="mr-4 w-[250px]">
+    <View className="mr-5 w-[200px]">
       <Image
         source={image}
-        className="w-full aspect-square rounded-2xl"
+        className="w-[200px] h-[200px] rounded-2xl"
         resizeMode="cover"
       />
       <Text className="text-white mt-2 font-medium text-xl" numberOfLines={2}>
