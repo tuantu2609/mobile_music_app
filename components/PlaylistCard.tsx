@@ -1,12 +1,13 @@
 import { View, Text, Image } from "react-native";
 
-interface AlbumCardProps {
-  album: Pick<Album, "name" | "images">;
-  artist: Pick<Artist, "name">;
+interface PlaylistCardProps {
+  playlist: Pick<Playlist, "name" | "images" | "creatorName">;
 }
 
-const AlbumCard = ({ album, artist }: AlbumCardProps) => {
-  const imageUrl = album.images?.[0]?.url ?? "https://example.com/default.jpg";
+const PlaylistCard = ({ playlist }: PlaylistCardProps) => {
+  const imageUrl =
+    playlist.images?.[0]?.url ?? "https://example.com/default.jpg";
+
   return (
     <View className="mr-5 w-[200px]">
       <Image
@@ -15,13 +16,13 @@ const AlbumCard = ({ album, artist }: AlbumCardProps) => {
         resizeMode="cover"
       />
       <Text className="text-white mt-2 font-bold text-xl" numberOfLines={1}>
-        {album.name}
+        {playlist.name}
       </Text>
       <Text className="text-gray-400 text-base" numberOfLines={1}>
-        {artist.name}
+        Created by {playlist.creatorName}
       </Text>
     </View>
   );
 };
 
-export default AlbumCard;
+export default PlaylistCard;

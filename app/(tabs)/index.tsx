@@ -13,6 +13,9 @@ import { useRouter } from "expo-router";
 import { useState } from "react";
 import SongCard from "@/components/SongCard";
 import MixCard from "@/components/MixCard";
+import AlbumCard from "@/components/AlbumCard";
+import PlaylistCard from "@/components/PlaylistCard";
+import RecommendationCard from "@/components/RecommendationCard";
 
 export default function Index() {
   const router = useRouter();
@@ -105,150 +108,373 @@ export default function Index() {
           </ScrollView>
         </View>
 
-        {/* Banner section */}
-        <View className="px-5">
-          <Text className="text-white text-3xl font-bold mb-5">
-            Featuring Today
-          </Text>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{ paddingBottom: 20 }}
-          >
-            {/* Mỗi banner nằm trong View riêng với width cố định */}
-            <View
-              className="mr-4"
-              style={{ width: Dimensions.get("window").width * 0.8 }}
-            >
-              <Image
-                source={images.banner1}
-                className="w-full h-64 rounded-3xl"
-                resizeMode="cover"
-              />
+        {activeTab === "For you" && (
+          <>
+            {/* Banner section */}
+            <View className="px-5">
+              <Text className="text-white text-3xl font-bold mb-5">
+                Featuring Today
+              </Text>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={{ paddingBottom: 20 }}
+              >
+                {/* Mỗi banner nằm trong View riêng với width cố định */}
+                <View
+                  className="mr-4"
+                  style={{ width: Dimensions.get("window").width * 0.8 }}
+                >
+                  <Image
+                    source={images.banner1}
+                    className="w-full h-64 rounded-3xl"
+                    resizeMode="cover"
+                  />
+                </View>
+
+                <View
+                  className="mr-4"
+                  style={{ width: Dimensions.get("window").width * 0.8 }}
+                >
+                  <Image
+                    source={images.banner2}
+                    className="w-full h-64 rounded-3xl"
+                    resizeMode="cover"
+                  />
+                </View>
+
+                <View
+                  className="mr-4"
+                  style={{ width: Dimensions.get("window").width * 0.8 }}
+                >
+                  <Image
+                    source={images.banner3}
+                    className="w-full h-64 rounded-3xl"
+                    resizeMode="cover"
+                  />
+                </View>
+
+                <View
+                  className="mr-4"
+                  style={{ width: Dimensions.get("window").width * 0.8 }}
+                >
+                  <Image
+                    source={images.banner4}
+                    className="w-full h-64 rounded-3xl"
+                    resizeMode="cover"
+                  />
+                </View>
+
+                <View
+                  className="mr-4"
+                  style={{ width: Dimensions.get("window").width * 0.8 }}
+                >
+                  <Image
+                    source={images.banner5}
+                    className="w-full h-64 rounded-3xl"
+                    resizeMode="cover"
+                  />
+                </View>
+              </ScrollView>
             </View>
 
-            <View
-              className="mr-4"
-              style={{ width: Dimensions.get("window").width * 0.8 }}
-            >
-              <Image
-                source={images.banner2}
-                className="w-full h-64 rounded-3xl"
-                resizeMode="cover"
-              />
+            {/* Recently played section */}
+            <View className="px-5 mt-10">
+              <View className="flex-row justify-between items-center mb-5">
+                <Text className="text-white text-3xl font-bold">
+                  Recently Played
+                </Text>
+                <Text
+                  className="text-gray-400 text-base text-xl"
+                  onPress={() => {
+                    console.log("See more pressed");
+                  }}
+                >
+                  See more
+                </Text>
+              </View>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={{ paddingRight: 20 }}
+              >
+                <SongCard title="Tên bài hát 1" image={images.song2} />
+                <SongCard title="Tên bài hát 2" image={images.song} />
+                <SongCard title="Tên bài hát 1" image={images.song2} />
+                <SongCard title="Tên bài hát 2" image={images.song} />
+                <SongCard title="Tên bài hát 1" image={images.song2} />
+                <SongCard title="Tên bài hát 2" image={images.song} />
+                <SongCard title="Tên bài hát 1" image={images.song2} />
+                <SongCard title="Tên bài hát 2" image={images.song} />
+              </ScrollView>
             </View>
 
-            <View
-              className="mr-4"
-              style={{ width: Dimensions.get("window").width * 0.8 }}
-            >
-              <Image
-                source={images.banner3}
-                className="w-full h-64 rounded-3xl"
-                resizeMode="cover"
-              />
+            {/* Mix section */}
+            <View className="px-5 mt-10">
+              <Text className="text-white text-3xl font-bold mb-5">
+                Mix for you
+              </Text>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={{ paddingRight: 20 }}
+              >
+                <MixCard
+                  artists={[
+                    { name: "Artist 1" },
+                    { name: "Artist 2" },
+                    { name: "Artist 3" },
+                    { name: "Artist 4" },
+                    { name: "Artist 5" },
+                    { name: "Artist 6" },
+                  ]}
+                  image={images.mix}
+                />
+                <MixCard
+                  artists={[
+                    { name: "Artist 1" },
+                    { name: "Artist 2" },
+                    { name: "Artist 3" },
+                    { name: "Artist 4" },
+                    { name: "Artist 5" },
+                    { name: "Artist 6" },
+                  ]}
+                  image={images.mix}
+                />
+                <MixCard
+                  artists={[
+                    { name: "Artist 1" },
+                    { name: "Artist 2" },
+                    { name: "Artist 3" },
+                    { name: "Artist 4" },
+                    { name: "Artist 5" },
+                    { name: "Artist 6" },
+                  ]}
+                  image={images.mix}
+                />
+              </ScrollView>
             </View>
 
-            <View
-              className="mr-4"
-              style={{ width: Dimensions.get("window").width * 0.8 }}
-            >
-              <Image
-                source={images.banner4}
-                className="w-full h-64 rounded-3xl"
-                resizeMode="cover"
-              />
+            {/* Album */}
+            <View className="px-5 mt-10">
+              <Text className="text-white text-3xl font-bold mb-5">
+                For Artists You Follow
+              </Text>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={{ paddingRight: 20 }}
+              >
+                <AlbumCard
+                  album={{
+                    name: "Bật Nó Lên",
+                    images: [
+                      {
+                        url: "https://product.hstatic.net/1000304920/product/soobin_batnolen_430f2bf37eb44a37a8349b645081e221_master.jpg",
+                        width: 640,
+                        height: 640,
+                      },
+                    ],
+                  }}
+                  artist={{ name: "Artist 1" }}
+                />
+                <AlbumCard
+                  album={{
+                    name: "Nắng Hoa Niên",
+                    images: [
+                      {
+                        url: "https://product.hstatic.net/1000304920/product/vuong_binh-anh_bo_vai-full_album_bc551e2e0ffe41b08c3ee2feb81aaa3e.jpg",
+                        width: 640,
+                        height: 640,
+                      },
+                    ],
+                  }}
+                  artist={{ name: "Artist 2" }}
+                />
+                <AlbumCard
+                  album={{
+                    name: "Album 3",
+                    images: [
+                      {
+                        url: "https://i.scdn.co/image/ab67616d0000b273794744c57c9f35db88249842",
+                        width: 640,
+                        height: 640,
+                      },
+                    ],
+                  }}
+                  artist={{ name: "Artist 3" }}
+                />
+              </ScrollView>
             </View>
 
-            <View
-              className="mr-4"
-              style={{ width: Dimensions.get("window").width * 0.8 }}
-            >
-              <Image
-                source={images.banner5}
-                className="w-full h-64 rounded-3xl"
-                resizeMode="cover"
-              />
+            {/* New Releases */}
+            <View className="px-5 mt-10">
+              <View className="flex-row justify-between items-center mb-5">
+                <Text className="text-white text-3xl font-bold">
+                  New Releases
+                </Text>
+                <Text
+                  className="text-gray-400 text-base text-xl"
+                  onPress={() => {
+                    console.log("See more pressed");
+                  }}
+                >
+                  See more
+                </Text>
+              </View>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={{ paddingRight: 20 }}
+              >
+                <SongCard title="Tên bài hát 1" image={images.song} />
+                <SongCard title="Tên bài hát 2" image={images.song2} />
+                <SongCard title="Tên bài hát 1" image={images.song} />
+                <SongCard title="Tên bài hát 2" image={images.song2} />
+                <SongCard title="Tên bài hát 1" image={images.song} />
+                <SongCard title="Tên bài hát 2" image={images.song2} />
+                <SongCard title="Tên bài hát 1" image={images.song} />
+                <SongCard title="Tên bài hát 2" image={images.song2} />
+              </ScrollView>
             </View>
-          </ScrollView>
-        </View>
 
-        {/* Recently played section */}
-        <View className="px-5">
-          <View className="flex-row justify-between items-center mb-5">
-            <Text className="text-white text-3xl font-bold">
-              Recently Played
-            </Text>
-            <Text
-              className="text-gray-400 text-base text-xl"
-              onPress={() => {
-                console.log("See more pressed");
-              }}
-            >
-              See more
-            </Text>
-          </View>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{ paddingRight: 20 }}
-          >
-            <SongCard title="Tên bài hát 1" image={images.song} />
-            <SongCard title="Tên bài hát 2" image={images.song} />
-            <SongCard title="Tên bài hát 1" image={images.song} />
-            <SongCard title="Tên bài hát 2" image={images.song} />
-            <SongCard title="Tên bài hát 1" image={images.song} />
-            <SongCard title="Tên bài hát 2" image={images.song} />
-            <SongCard title="Tên bài hát 1" image={images.song} />
-            <SongCard title="Tên bài hát 2" image={images.song} />
-          </ScrollView>
-        </View>
+            {/* Playlist */}
+            <View className="px-5 mt-10">
+              <View className="flex-row justify-between items-center mb-5">
+                <Text className="text-white text-3xl font-bold">
+                  Top Playlists
+                </Text>
+                <Text
+                  className="text-gray-400 text-base text-xl"
+                  onPress={() => {
+                    console.log("See more pressed");
+                  }}
+                >
+                  See more
+                </Text>
+              </View>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={{ paddingRight: 20 }}
+              >
+                <PlaylistCard
+                  playlist={{
+                    name: "Bật Nó Lên",
+                    images: [
+                      {
+                        url: "https://product.hstatic.net/1000304920/product/soobin_batnolen_430f2bf37eb44a37a8349b645081e221_master.jpg",
+                        width: 640,
+                        height: 640,
+                      },
+                    ],
+                    creatorName: "John Doe",
+                  }}
+                />
+              </ScrollView>
+            </View>
+          </>
+        )}
 
-        {/* Mix section */}
-        <View className="px-5 mt-5">
-          <Text className="text-white text-3xl font-bold mb-5">
-            Mix for you
-          </Text>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{ paddingRight: 20 }}
-          >
-            <MixCard
-              artists={[
-                { name: "Artist 1" },
-                { name: "Artist 2" },
-                { name: "Artist 3" },
-                { name: "Artist 4" },
-                { name: "Artist 5" },
-                { name: "Artist 6" },
-              ]}
-              image={images.mix}
-            />
-            <MixCard
-              artists={[
-                { name: "Artist 1" },
-                { name: "Artist 2" },
-                { name: "Artist 3" },
-                { name: "Artist 4" },
-                { name: "Artist 5" },
-                { name: "Artist 6" },
-              ]}
-              image={images.mix}
-            />
-            <MixCard
-              artists={[
-                { name: "Artist 1" },
-                { name: "Artist 2" },
-                { name: "Artist 3" },
-                { name: "Artist 4" },
-                { name: "Artist 5" },
-                { name: "Artist 6" },
-              ]}
-              image={images.mix}
-            />
-          </ScrollView>
-        </View>
+        {activeTab === "Relax" && (
+          <>
+            {/* Recommend Playlist */}
+            <View className="px-5 mt-10">
+              <Text className="text-white text-3xl font-bold mb-5">
+                Today’s Refreshing Song-Recommendations
+              </Text>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={{ paddingRight: 20 }}
+              >
+                <RecommendationCard />
+                <RecommendationCard />
+                <RecommendationCard />
+              </ScrollView>
+            </View>
+
+            {/* Mix section */}
+            <View className="px-5 mt-10">
+              <Text className="text-white text-3xl font-bold mb-5">
+                Mix for you
+              </Text>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={{ paddingRight: 20 }}
+              >
+                <MixCard
+                  artists={[
+                    { name: "Artist 1" },
+                    { name: "Artist 2" },
+                    { name: "Artist 3" },
+                    { name: "Artist 4" },
+                    { name: "Artist 5" },
+                    { name: "Artist 6" },
+                  ]}
+                  image={images.mix}
+                />
+                <MixCard
+                  artists={[
+                    { name: "Artist 1" },
+                    { name: "Artist 2" },
+                    { name: "Artist 3" },
+                    { name: "Artist 4" },
+                    { name: "Artist 5" },
+                    { name: "Artist 6" },
+                  ]}
+                  image={images.mix}
+                />
+                <MixCard
+                  artists={[
+                    { name: "Artist 1" },
+                    { name: "Artist 2" },
+                    { name: "Artist 3" },
+                    { name: "Artist 4" },
+                    { name: "Artist 5" },
+                    { name: "Artist 6" },
+                  ]}
+                  image={images.mix}
+                />
+              </ScrollView>
+            </View>
+
+            {/* Playlist */}
+            <View className="px-5 mt-10">
+              <View className="flex-row justify-between items-center mb-5">
+                <Text className="text-white text-3xl font-bold">Playlists</Text>
+                <Text
+                  className="text-gray-400 text-base text-xl"
+                  onPress={() => {
+                    console.log("See more pressed");
+                  }}
+                >
+                  See more
+                </Text>
+              </View>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={{ paddingRight: 20 }}
+              >
+                <PlaylistCard
+                  playlist={{
+                    name: "Bật Nó Lên",
+                    images: [
+                      {
+                        url: "https://product.hstatic.net/1000304920/product/soobin_batnolen_430f2bf37eb44a37a8349b645081e221_master.jpg",
+                        width: 640,
+                        height: 640,
+                      },
+                    ],
+                    creatorName: "John Doe",
+                  }}
+                />
+              </ScrollView>
+            </View>
+          </>
+        )}
       </ScrollView>
     </View>
   );

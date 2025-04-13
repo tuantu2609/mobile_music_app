@@ -61,3 +61,10 @@ interface Album {
   release_date: string;
   images: Image[];
 }
+
+interface Playlist {
+  name: string;
+  images: Image[];
+  description?: string;
+  creatorName: string;
+}
