@@ -1,77 +1,71 @@
-interface Movie {
-  id: number;
+interface Song {
+  id: string;
   title: string;
-  adult: boolean;
-  backdrop_path: string;
-  genre_ids: number[];
-  original_language: string;
-  original_title: string;
-  overview: string;
-  popularity: number;
-  poster_path: string;
+  explicit: boolean;
+  album_cover: string;
+  genre_ids?: string[]; // Spotify không gán genre trực tiếp cho track, thường lấy từ artist
+  language?: string;
+  artists: Pick<Artist, "id" | "name">[];
+  description?: string;
+  popularity: number; // 0 - 100
+  preview_url?: string; // link nhạc mẫu 30s
   release_date: string;
-  video: boolean;
-  vote_average: number;
-  vote_count: number;
+  is_playable: boolean;
+  duration_ms: number;
+  image: ImageSourcePropType;
 }
 
-interface TrendingMovie {
+interface TrendingSong {
+  song: Song;
   searchTerm: string;
-  movie_id: number;
-  title: string;
   count: number;
-  poster_url: string;
 }
 
-interface MovieDetails {
-  adult: boolean;
-  backdrop_path: string | null;
-  belongs_to_collection: {
-    id: number;
-    name: string;
-    poster_path: string;
-    backdrop_path: string;
-  } | null;
-  budget: number;
-  genres: {
-    id: number;
-    name: string;
-  }[];
-  homepage: string | null;
-  id: number;
-  imdb_id: string | null;
-  original_language: string;
-  original_title: string;
-  overview: string | null;
-  popularity: number;
-  poster_path: string | null;
-  production_companies: {
-    id: number;
-    logo_path: string | null;
-    name: string;
-    origin_country: string;
-  }[];
-  production_countries: {
-    iso_3166_1: string;
-    name: string;
-  }[];
-  release_date: string;
-  revenue: number;
-  runtime: number | null;
-  spoken_languages: {
-    english_name: string;
-    iso_639_1: string;
-    name: string;
-  }[];
-  status: string;
-  tagline: string | null;
+interface SongDetails {
+  id: string;
   title: string;
-  video: boolean;
-  vote_average: number;
-  vote_count: number;
+  explicit: boolean;
+  album: Album;
+  artists: Artist[];
+  available_markets: string[];
+  popularity: number;
+  preview_url?: string;
+  duration_ms: number;
+  is_playable: boolean;
+  external_urls: {
+    spotify: string;
+  };
 }
 
 interface TrendingCardProps {
-  movie: TrendingMovie;
+  song: TrendingSong;
   index: number;
+}
+
+interface Image {
+  url: string;
+  height: number;
+  width: number;
+}
+
+interface Artist {
+  id: string;
+  name: string;
+  genres: string[];
+  popularity: number;
+  images?: Image[];
+}
+
+interface Album {
+  id: string;
+  name: string;
+  release_date: string;
+  images: Image[];
+}
+
+interface Playlist {
+  name: string;
+  images: Image[];
+  description?: string;
+  creatorName: string;
 }

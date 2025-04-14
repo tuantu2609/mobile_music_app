@@ -13,6 +13,9 @@ import library from "@/assets/icons/library.png";
 import heart from "@/assets/icons/heart.png";
 import heart_fill from "@/assets/icons/heart_fill.png";
 import bell from "@/assets/icons/bell.png";
+import hello from "@/assets/icons/hello.png";
+import more from "@/assets/icons/more.png";
+import trending from "@/assets/icons/trending.png";
 
 export const icons = {
   home,
@@ -30,4 +33,7 @@ export const icons = {
   heart,
   heart_fill,
   bell,
+  hello,
+  more,
+  trending,
 };
