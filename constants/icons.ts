@@ -16,6 +16,7 @@ import bell from "@/assets/icons/bell.png";
 import hello from "@/assets/icons/hello.png";
 import more from "@/assets/icons/more.png";
 import trending from "@/assets/icons/trending.png";
+import backBtn from "@/assets/icons/backBtn.png";
 
 export const icons = {
   home,
@@ -36,4 +37,5 @@ export const icons = {
   hello,
   more,
   trending,
+  backBtn,
 };

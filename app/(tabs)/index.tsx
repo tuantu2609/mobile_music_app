@@ -60,7 +60,7 @@ export default function Index() {
                 />
               </TouchableOpacity>
 
-              <TouchableOpacity>
+              <TouchableOpacity onPress={() => router.push("/profile")}>
                 <Image
                   source={images.avatar}
                   className="w-[48px] h-[48px] rounded-full"
