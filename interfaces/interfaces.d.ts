@@ -12,6 +12,7 @@ interface Song {
   release_date: string;
   is_playable: boolean;
   duration_ms: number;
+  image: ImageSourcePropType;
 }
 
 interface TrendingSong {

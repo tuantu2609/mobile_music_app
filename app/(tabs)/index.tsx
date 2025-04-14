@@ -1,12 +1,5 @@
 import { Link } from "expo-router";
-import {
-  Text,
-  View,
-  Image,
-  ScrollView,
-  TouchableOpacity,
-  Dimensions,
-} from "react-native";
+import { Text, View, Image, ScrollView, TouchableOpacity } from "react-native";
 import { images } from "@/constants/images";
 import { icons } from "@/constants/icons";
 import { useRouter } from "expo-router";
@@ -16,6 +9,8 @@ import MixCard from "@/components/MixCard";
 import AlbumCard from "@/components/AlbumCard";
 import PlaylistCard from "@/components/PlaylistCard";
 import RecommendationCard from "@/components/RecommendationCard";
+import BannerCard from "@/components/BannerCard";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Index() {
   const router = useRouter();
@@ -24,7 +19,7 @@ export default function Index() {
   const tabs = ["For you", "Relax", "Workout", "Travel"];
 
   return (
-    <View className="flex-1 bg-primary">
+    <SafeAreaView className="flex-1 bg-primary pb-20">
       <Image
         source={images.bg}
         className="absolute w-full h-full z-0"
@@ -39,7 +34,7 @@ export default function Index() {
         contentContainerStyle={{ paddingBottom: 20 }}
       >
         {/* Phần header */}
-        <View className="pt-10 pb-5 px-5">
+        <View className="pb-5 px-5">
           <View className="flex-row justify-between items-center">
             <View>
               <View className="flex-row items-center">
@@ -121,60 +116,11 @@ export default function Index() {
                 contentContainerStyle={{ paddingBottom: 20 }}
               >
                 {/* Mỗi banner nằm trong View riêng với width cố định */}
-                <View
-                  className="mr-4"
-                  style={{ width: Dimensions.get("window").width * 0.8 }}
-                >
-                  <Image
-                    source={images.banner1}
-                    className="w-full h-64 rounded-3xl"
-                    resizeMode="cover"
-                  />
-                </View>
-
-                <View
-                  className="mr-4"
-                  style={{ width: Dimensions.get("window").width * 0.8 }}
-                >
-                  <Image
-                    source={images.banner2}
-                    className="w-full h-64 rounded-3xl"
-                    resizeMode="cover"
-                  />
-                </View>
-
-                <View
-                  className="mr-4"
-                  style={{ width: Dimensions.get("window").width * 0.8 }}
-                >
-                  <Image
-                    source={images.banner3}
-                    className="w-full h-64 rounded-3xl"
-                    resizeMode="cover"
-                  />
-                </View>
-
-                <View
-                  className="mr-4"
-                  style={{ width: Dimensions.get("window").width * 0.8 }}
-                >
-                  <Image
-                    source={images.banner4}
-                    className="w-full h-64 rounded-3xl"
-                    resizeMode="cover"
-                  />
-                </View>
-
-                <View
-                  className="mr-4"
-                  style={{ width: Dimensions.get("window").width * 0.8 }}
-                >
-                  <Image
-                    source={images.banner5}
-                    className="w-full h-64 rounded-3xl"
-                    resizeMode="cover"
-                  />
-                </View>
+                <BannerCard source={images.banner1} />
+                <BannerCard source={images.banner2} />
+                <BannerCard source={images.banner3} />
+                <BannerCard source={images.banner4} />
+                <BannerCard source={images.banner5} />
               </ScrollView>
             </View>
 
@@ -476,6 +422,6 @@ export default function Index() {
           </>
         )}
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }

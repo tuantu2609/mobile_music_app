@@ -1,5 +1,7 @@
-import { View, Text, Image, TouchableOpacity } from "react-native";
+import { View, Text, Image, TouchableOpacity, Dimensions } from "react-native";
 import { icons } from "@/constants/icons";
+
+const screenWidth = Dimensions.get("window").width;
 
 interface SongCardProps {
   title: string;
@@ -7,26 +9,43 @@ interface SongCardProps {
 }
 
 const SongCard = ({ title, image }: SongCardProps) => {
+  const width = screenWidth * 0.25;
   return (
-    <View className="mr-5">
+    <View className="mr-3" style={{ width: width }}>
       <View className="relative">
         <Image
           source={image}
-          className="w-[140px] h-[140px] rounded-2xl"
           resizeMode="cover"
+          style={{
+            width: width,
+            height: width,
+            borderRadius: 16,
+            overflow: "hidden",
+          }}
         />
 
         {/* Nút play */}
-        <TouchableOpacity className="absolute bottom-3 right-3 rounded-full size-12 bg-white flex items-center justify-center">
+        <TouchableOpacity
+          className="absolute bottom-2 right-2 rounded-full bg-white flex items-center justify-center"
+          style={{
+            width: width / 3,
+            height: width / 3,
+            borderRadius: width / 3 / 2,
+          }}
+        >
           <Image
             source={icons.play}
-            className="w-5 h-5 ml-[1px]"
+            style={{
+              width: width / 4 / 2,
+              height: width / 4 / 2,
+              marginLeft: 1,
+            }}
             resizeMode="contain"
           />
         </TouchableOpacity>
       </View>
 
-      <Text className="text-white mt-2 font-medium text-xl" numberOfLines={1}>
+      <Text className="text-white mt-2 font-medium text-base" numberOfLines={1}>
         {title}
       </Text>
     </View>

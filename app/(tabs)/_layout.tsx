@@ -1,8 +1,8 @@
-import { View, Text, ImageBackground, Image } from "react-native";
+import { View, Text, Image } from "react-native";
 import { Tabs } from "expo-router";
 import React from "react";
 import { icons } from "@/constants/icons";
-import { LinearGradient } from "expo-linear-gradient";
+import { BlurView } from "expo-blur";
 
 const TabIcon = ({ focused, icon, title }: any) => {
   const opacityClass = focused ? "opacity-75" : "opacity-50";
@@ -29,8 +29,6 @@ const _layout = () => {
       screenOptions={{
         tabBarShowLabel: false,
         tabBarItemStyle: {
-          // width: "100%",
-          // height: "100%",
           flex: 1,
           justifyContent: "center",
           alignItems: "center",
@@ -40,14 +38,11 @@ const _layout = () => {
           height: 72,
           position: "absolute",
           overflow: "hidden",
-          borderWidth: 1,
+          borderTopWidth: 0.5,
           borderColor: "rgba(255,255,255,0.1)",
         },
         tabBarBackground: () => (
-          <LinearGradient
-            colors={["transparent", "rgba(0, 0, 0, 1)"]}
-            style={{ flex: 1 }}
-          />
+          <BlurView intensity={30} tint="dark" style={{ flex: 1 }} />
         ),
       }}
     >
@@ -64,18 +59,17 @@ const _layout = () => {
       <Tabs.Screen
         name="search"
         options={{
-          title: "search",
+          title: "Search",
           headerShown: false,
           tabBarIcon: ({ focused }) => (
             <TabIcon focused={focused} icon={icons.search} title="Search" />
           ),
         }}
       />
-
       <Tabs.Screen
         name="library"
         options={{
-          title: "library",
+          title: "Library",
           headerShown: false,
           tabBarIcon: ({ focused }) => (
             <TabIcon
