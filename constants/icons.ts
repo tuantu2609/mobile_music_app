@@ -21,6 +21,9 @@ import prev from "@/assets/icons/prev.png";
 import next from "@/assets/icons/next.png";
 import repeat from "@/assets/icons/repeat.png";
 import go from "@/assets/icons/go.png";
+import backBtn from "@/assets/icons/backBtn.png";
+import playlist from "@/assets/icons/playlist.png";
+import artist from "@/assets/icons/artist.png";
 
 export const icons = {
   home,
@@ -46,4 +49,7 @@ export const icons = {
   next,
   repeat,
   go,
+  backBtn,
+  playlist,
+  artist,
 };
