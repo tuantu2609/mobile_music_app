@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import { icons } from "@/constants/icons";
 import { images } from "@/constants/images";
+import SongListCard from "./SongListCard";
 
 const screenWidth = Dimensions.get("window").width;
 const screenHeight = Dimensions.get("window").height;
@@ -82,7 +83,7 @@ const RecommendationCard = () => {
     <View
       style={{
         width: screenWidth * 0.8,
-        height: screenHeight * 0.7,
+        // height: screenHeight * 0.7,
         overflow: "hidden",
       }}
       className="mr-5 rounded-2xl"
@@ -160,37 +161,12 @@ const RecommendationCard = () => {
         </View>
       </View>
 
-      {/* Song component */}
-      {displayedSongs.map((item) => (
-        <View
-          key={item.id}
-          className="p-4 flex-row items-center justify-between mt-2"
-        >
-          <View className="flex-row items-center flex-1">
-            <Image
-              source={item.image}
-              style={{
-                width: screenWidth * 0.15,
-                height: screenWidth * 0.15,
-                borderRadius: 16,
-              }}
-              resizeMode="cover"
-            />
-            <View className="ms-3 flex-1">
-              <Text className="text-white font-bold text-xl">{item.title}</Text>
-              <Text className="text-white/70 text-xl">{item.artists}</Text>
-            </View>
-          </View>
-          <TouchableOpacity className="opacity-50 flex items-center justify-center">
-            <Image
-              source={icons.more}
-              style={{ width: 28, height: 28 }}
-              resizeMode="contain"
-              tintColor="white"
-            />
-          </TouchableOpacity>
-        </View>
-      ))}
+      <View className="mb-20">
+        {/* Song component */}
+        {displayedSongs.map((item) => (
+          <SongListCard key={item.id} song={item} />
+        ))}
+      </View>
 
       <TouchableOpacity
         style={{

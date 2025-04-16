@@ -6,13 +6,14 @@ import {
   TextInput,
   ScrollView,
   TouchableOpacity,
+  Pressable,
+  Keyboard,
 } from "react-native";
-import React, { useEffect } from "react";
+import React from "react";
 import { images } from "@/constants/images";
 import { icons } from "@/constants/icons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
-import { Link } from "expo-router";
 
 const trendingArtists = [
   { id: "1", name: "Soobin Hoàng Sơn", image: images.artist },
@@ -71,6 +72,7 @@ const recentSearches = [
 const search = () => {
   const [isSearching, setIsSearching] = React.useState(false);
   const router = useRouter();
+
   return (
     <SafeAreaView className="flex-1 bg-primary">
       <Image
@@ -79,8 +81,10 @@ const search = () => {
         resizeMode="cover"
         tintColor={"#000000"}
       />
+
       <ScrollView
         contentContainerStyle={{ paddingBottom: 24 }}
+        keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
         {/* Search bar */}
@@ -92,7 +96,6 @@ const search = () => {
           />
           <TextInput
             onFocus={() => setIsSearching(true)}
-            onBlur={() => setIsSearching(false)}
             placeholder="Search songs, artist, album or playlist"
             placeholderTextColor="#999"
             className="flex-1 text-gray"
@@ -100,77 +103,77 @@ const search = () => {
         </View>
 
         {isSearching ? (
-          <>
+          <Pressable
+            onPress={() => {
+              setIsSearching(false);
+              Keyboard.dismiss();
+            }}
+          >
             <Text className="text-white text-base font-semibold mx-4 mb-3">
               Recent searches
             </Text>
+
             {recentSearches.map((item) => (
               <View
                 key={item.id}
                 className="flex-row items-center justify-between px-4 mb-4"
               >
-                {item.type === "Artist" ? (
-                  <Link href={`/artist/${item.id}`} asChild>
-                    <TouchableOpacity className="flex-row items-center flex-1">
-                      <Image
-                        source={item.image}
-                        className="w-12 h-12 rounded-md mr-3"
-                        resizeMode="cover"
-                      />
-                      <View style={{ flexShrink: 1 }}>
-                        <Text
-                          className="text-white font-semibold"
-                          numberOfLines={1}
-                          ellipsizeMode="tail"
-                        >
-                          {item.title}
-                        </Text>
-                        <Text
-                          className="text-white/60 text-xs"
-                          numberOfLines={1}
-                          ellipsizeMode="tail"
-                        >
-                          {item.type}
-                          {item.subtitle ? ` • ${item.subtitle}` : ""}
-                        </Text>
-                      </View>
-                    </TouchableOpacity>
-                  </Link>
-                ) : (
-                  <TouchableOpacity className="flex-row items-center flex-1">
-                    {/* Trường hợp khác không phải Artist */}
-                    <Image
-                      source={item.image}
-                      className="w-12 h-12 rounded-md mr-3"
-                      resizeMode="cover"
-                    />
-                    <View style={{ flexShrink: 1 }}>
-                      <Text
-                        className="text-white font-semibold"
-                        numberOfLines={1}
-                        ellipsizeMode="tail"
-                      >
-                        {item.title}
-                      </Text>
-                      <Text
-                        className="text-white/60 text-xs"
-                        numberOfLines={1}
-                        ellipsizeMode="tail"
-                      >
-                        {item.type}
-                        {item.subtitle ? ` • ${item.subtitle}` : ""}
-                      </Text>
-                    </View>
-                  </TouchableOpacity>
-                )}
+                <TouchableOpacity
+                  className="flex-row items-center flex-1"
+                  onPress={() => {
+                    setIsSearching(false);
+                    Keyboard.dismiss();
+
+                    const pathMap = {
+                      Song: "/song/[id]",
+                      Album: "/album/[id]",
+                      Artist: "/artist/[id]",
+                      Playlist: "/playlist/[id]",
+                    } as const;
+
+                    const path = pathMap[item.type as keyof typeof pathMap];
+
+                    router.push({
+                      pathname: path,
+                      params: { id: item.id },
+                    });
+                  }}
+                >
+                  <Image
+                    source={item.image}
+                    className="w-12 h-12 rounded-md mr-3"
+                    resizeMode="cover"
+                  />
+                  <View style={{ flexShrink: 1 }}>
+                    <Text
+                      className="text-white font-semibold"
+                      numberOfLines={1}
+                      ellipsizeMode="tail"
+                    >
+                      {item.title}
+                    </Text>
+                    <Text
+                      className="text-white/60 text-xs"
+                      numberOfLines={1}
+                      ellipsizeMode="tail"
+                    >
+                      {item.type}
+                      {item.subtitle ? ` • ${item.subtitle}` : ""}
+                    </Text>
+                  </View>
+                </TouchableOpacity>
 
                 <Text className="text-white/60 text-xl ml-3">×</Text>
               </View>
             ))}
+
             <Text className="text-right text-white/40 text-sm mr-4 mt-4">
               Clear history
             </Text>
-          </>
+
+            {/* Khoảng trống để bấm */}
+            <View className="h-40" />
+          </Pressable>
         ) : (
           <>
             {/* Trending section */}
@@ -193,7 +196,15 @@ const search = () => {
               data={trendingArtists}
               keyExtractor={(item) => item.id}
               renderItem={({ item }) => (
-                <View className="items-center mr-5">
+                <TouchableOpacity
+                  className="items-center mr-5"
+                  onPress={() => {
+                    router.push({
+                      pathname: "/artist/[id]",
+                      params: { id: item.id },
+                    });
+                  }}
+                >
                   <Image
                     source={item.image}
                     className="w-16 h-16 rounded-full mb-1"
@@ -202,15 +213,15 @@ const search = () => {
                   <Text className="text-white text-xs text-center w-20">
                     {item.name}
                   </Text>
-                </View>
+                </TouchableOpacity>
               )}
             />
 
-            {/* Browse section title */}
+            {/* Browse */}
             <View className="mx-4 mb-3">
               <Text className="text-white font-semibold text-lg">Browse</Text>
             </View>
-            {/* Browse section grid */}
+
             <View className="flex-row flex-wrap justify-between mx-4 pb-20">
               {genres.map((item) => (
                 <View
