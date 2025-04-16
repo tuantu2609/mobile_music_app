@@ -9,7 +9,7 @@ export type Song = {
   Album?: { id: string; name: string; release_date: string };
 };
 
-const API_URL = "http://172.30.98.148:3001/api/songs";
+const API_URL = "API_URL=http://192.168.1.4:3001/api/songs";
 
 const useSongList = () =>
   useFetch<Song[]>(() => axios.get(API_URL).then((res) => res.data));

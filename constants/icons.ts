@@ -24,6 +24,8 @@ import go from "@/assets/icons/go.png";
 import backBtn from "@/assets/icons/backBtn.png";
 import playlist from "@/assets/icons/playlist.png";
 import artist from "@/assets/icons/artist.png";
+import view from "@/assets/icons/view.png";
+import hide from "@/assets/icons/hide.png";
 
 export const icons = {
   home,
@@ -52,4 +54,6 @@ export const icons = {
   backBtn,
   playlist,
   artist,
+  view,
+  hide,
 };
