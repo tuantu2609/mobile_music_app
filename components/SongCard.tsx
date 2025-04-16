@@ -6,12 +6,17 @@ const screenWidth = Dimensions.get("window").width;
 interface SongCardProps {
   title: string;
   image: any;
+  onPress?: () => void;
 }
 
-const SongCard = ({ title, image }: SongCardProps) => {
+const SongCard = ({ title, image, onPress }: SongCardProps) => {
   const width = screenWidth * 0.25;
   return (
-    <View className="mr-3" style={{ width: width }}>
+    <TouchableOpacity
+      className="mr-3"
+      style={{ width: width }}
+      onPress={onPress}
+    >
       <View className="relative">
         <Image
           source={image}
@@ -48,7 +53,7 @@ const SongCard = ({ title, image }: SongCardProps) => {
       <Text className="text-white mt-2 font-medium text-base" numberOfLines={1}>
         {title}
       </Text>
-    </View>
+    </TouchableOpacity>
   );
 };
 

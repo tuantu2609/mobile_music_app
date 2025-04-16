@@ -12,6 +12,18 @@ import RecommendationCard from "@/components/RecommendationCard";
 import BannerCard from "@/components/BannerCard";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import { usePlayerStore } from "@/store/usePlayerStore";
+
+const onSongPress = () => {
+  usePlayerStore.getState().setCurrentSong({
+    id: "1",
+    title: "Giá Như",
+    subtitle: "Soobin Hoàng Sơn",
+    image:
+      "https://photo-resize-zmp3.zadn.vn/w600_r1x1_jpeg/cover/1/d/6/a/1d6a1fa9aaf8b3be17dd64f396fe7ed6.jpg",
+  });
+};
+
 export default function Index() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("For you");
@@ -19,7 +31,7 @@ export default function Index() {
   const tabs = ["For you", "Relax", "Workout", "Travel"];
 
   return (
-    <SafeAreaView className="flex-1 bg-primary pb-20">
+    <SafeAreaView className="flex-1 bg-primary">
       <Image
         source={images.bg}
         className="absolute w-full h-full z-0"
@@ -144,7 +156,11 @@ export default function Index() {
                 showsHorizontalScrollIndicator={false}
                 contentContainerStyle={{ paddingRight: 20 }}
               >
-                <SongCard title="Tên bài hát 1" image={images.song2} />
+                <SongCard
+                  title="Tên bài hát 1"
+                  image={images.song2}
+                  onPress={onSongPress}
+                />
                 <SongCard title="Tên bài hát 2" image={images.song} />
                 <SongCard title="Tên bài hát 1" image={images.song2} />
                 <SongCard title="Tên bài hát 2" image={images.song} />
@@ -285,7 +301,7 @@ export default function Index() {
             </View>
 
             {/* Playlist */}
-            <View className="px-5 mt-10">
+            <View className="px-5 mt-10 pb-20">
               <View className="flex-row justify-between items-center mb-5">
                 <Text className="text-white text-3xl font-bold">
                   Top Playlists
@@ -387,7 +403,7 @@ export default function Index() {
             </View>
 
             {/* Playlist */}
-            <View className="px-5 mt-10">
+            <View className="px-5 mt-10 pb-20">
               <View className="flex-row justify-between items-center mb-5">
                 <Text className="text-white text-3xl font-bold">Playlists</Text>
                 <Text

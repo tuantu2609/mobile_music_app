@@ -3,43 +3,13 @@ interface Song {
   title: string;
   explicit: boolean;
   album_cover: string;
-  genre_ids?: string[]; // Spotify không gán genre trực tiếp cho track, thường lấy từ artist
-  language?: string;
   artists: Pick<Artist, "id" | "name">[];
-  description?: string;
-  popularity: number; // 0 - 100
-  preview_url?: string; // link nhạc mẫu 30s
+  popularity: number;
+  preview_url?: string;
   release_date: string;
   is_playable: boolean;
   duration_ms: number;
-  image: ImageSourcePropType;
-}
-
-interface TrendingSong {
-  song: Song;
-  searchTerm: string;
-  count: number;
-}
-
-interface SongDetails {
-  id: string;
-  title: string;
-  explicit: boolean;
-  album: Album;
-  artists: Artist[];
-  available_markets: string[];
-  popularity: number;
-  preview_url?: string;
-  duration_ms: number;
-  is_playable: boolean;
-  external_urls: {
-    spotify: string;
-  };
-}
-
-interface TrendingCardProps {
-  song: TrendingSong;
-  index: number;
+  image?: ImageSourcePropType;
 }
 
 interface Image {
@@ -53,7 +23,9 @@ interface Artist {
   name: string;
   genres: string[];
   popularity: number;
-  images?: Image[];
+  images: Image[];
+  external_url: string;
+  followers: number;
 }
 
 interface Album {
@@ -61,11 +33,21 @@ interface Album {
   name: string;
   release_date: string;
   images: Image[];
+  album_type: string;
+  total_tracks: number;
+  genres: string[];
+  label: string;
+  popularity: number;
+  artists: Pick<Artist, "id" | "name">[];
+  external_url: string;
 }
 
 interface Playlist {
+  id: string;
   name: string;
   images: Image[];
   description?: string;
   creatorName: string;
+  total_tracks: number;
+  external_url: string;
 }
