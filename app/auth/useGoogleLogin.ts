@@ -12,12 +12,13 @@ export function useGoogleLogin() {
 
   const [request, response, promptAsync] = Google.useAuthRequest({
     expoClientId: "40260263071-5vlm3c5bappus6mphg6agm1ba66pulnu.apps.googleusercontent.com", // Web Client ID
-    iosClientId: "40260263071-2gn63q0j31qjtoj2g6lv1brpp0innh53.apps.googleusercontent.com", // iOS Client ID
+    iosClientId: "40260263071-2gn63q0j31qjtoj2g6lv1brpp0innh53.apps.googleusercontent.com", // iOS Client 
+    androidClientId:"40260263071-iko29l81q19atl5t5q8f4er5oqk8o1bo.apps.googleusercontent.com",
     redirectUri,
     useProxy: true, // Bắt buộc true khi chạy Expo Go
   });
 
-  console.log("Redirect URI:", redirectUri);
+  // console.log("Redirect URI:", redirectUri);
 
   useEffect(() => {
     if (response?.type === "success") {

@@ -11,14 +11,17 @@ import { useRouter } from "expo-router";
 import { icons } from "@/constants/icons";
 import { images } from "@/constants/images";
 import { BlurView } from "expo-blur";
+import { useAuth } from "@/app/auth/useAuth";
 
 export default function ProfileScreen() {
   const router = useRouter();
+  const { user, logout } = useAuth(); // ✅ lấy user từ useAuth
 
   const [autoPlay, setAutoPlay] = useState(false);
   const [showLyrics, setShowLyrics] = useState(false);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    await logout();
     router.replace("/auth/login");
   };
 
@@ -30,7 +33,6 @@ export default function ProfileScreen() {
     <View className="flex-1 bg-black px-6 pb-4">
       {/* Header cố định */}
       <View className="absolute top-12 left-6 right-6 z-10 flex-row justify-between items-center">
-        {/* Nút quay lại */}
         <TouchableOpacity
           onPress={handleBack}
           className="flex-row items-center space-x-2 bg-white/15 border border-white/20 px-4 py-2 rounded-full shadow-md"
@@ -43,16 +45,14 @@ export default function ProfileScreen() {
           />
         </TouchableOpacity>
 
-        {/* Tiêu đề */}
         <Text className="text-white text-xl font-bold">My Profile</Text>
 
-        {/* Nút Edit */}
         <TouchableOpacity className="bg-white/10 px-4 py-2 rounded-full">
           <Text className="text-white font-medium text-sm">Edit</Text>
         </TouchableOpacity>
       </View>
 
-      {/* Nội dung scroll được */}
+      {/* Nội dung scroll */}
       <ScrollView
         contentContainerStyle={{
           paddingTop: 100,
@@ -68,18 +68,17 @@ export default function ProfileScreen() {
             resizeMode="cover"
           />
           <Text className="text-white text-xl font-semibold mb-1">
-            Logan Jimmy
+            {user?.name || "Chưa có tên"}
           </Text>
           <Text className="text-white text-sm mt-2 font-semibold">Email</Text>
           <Text className="text-gray-400 text-sm mb-2">
-            jim_logan01@gmail.com
+            {user?.email || "-"}
           </Text>
           <Text className="text-white text-sm font-semibold">Phone Number</Text>
-          <Text className="text-gray-400 text-sm">8844662200</Text>
+          <Text className="text-gray-400 text-sm">{user?.phone || "-"}</Text>
         </View>
 
         {/* Stats */}
-
         <View className="flex-row justify-between mb-8">
           {/* Songs */}
           <TouchableOpacity
@@ -173,9 +172,10 @@ export default function ProfileScreen() {
         <Text className="text-white text-xl font-semibold mb-6">Settings</Text>
 
         <View className="mb-8">
+          {/* các mục settings giữ nguyên */}
           <View className="flex-row justify-between items-center mb-4">
             <Text className="text-white">Language(s)</Text>
-            <Text className="text-gray-300">English, Tamil</Text>
+            <Text className="text-gray-300">English, Vietnamese</Text>
           </View>
 
           <View className="flex-row justify-between items-center mb-4">
