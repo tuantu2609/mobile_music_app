@@ -20,7 +20,7 @@ import { useGoogleLogin } from "@/app/auth/useGoogleLogin";
 
 export default function LoginScreen() {
   const router = useRouter();
-  const { login, loading } = useAuth(); // 👈 lấy login và loading từ useAuth
+  const { login, loading } = useAuth(); // ✅ dùng login từ useAuth để đồng bộ user + token
   const { promptAsync, request } = useGoogleLogin();
 
   const [email, setEmail] = useState("");
@@ -33,10 +33,10 @@ export default function LoginScreen() {
       return;
     }
 
-    const result = await login(email, password); // 👈 dùng login của useAuth
+    const result = await login(email, password);
 
     if (result.success) {
-      router.replace("/(tabs)"); // ✅ login thành công -> chuyển qua tabs
+      router.replace("/(tabs)"); // ✅ login thành công -> chuyển tabs
     } else {
       Alert.alert("Đăng nhập thất bại", result.message || "Sai thông tin đăng nhập");
     }
@@ -48,13 +48,13 @@ export default function LoginScreen() {
         className="flex-1 bg-black"
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
-        {/* --- Fixed Header --- */}
+        {/* --- Header --- */}
         <View className="items-center mt-16 mb-6">
           <Image source={icons.logo} className="w-40 h-12" resizeMode="contain" />
           <Text className="text-gray-300 text-lg mt-2 tracking-wide">Just relax</Text>
         </View>
 
-        {/* --- Scrollable Form --- */}
+        {/* --- Form --- */}
         <ScrollView
           contentContainerStyle={{
             flexGrow: 1,
@@ -70,7 +70,6 @@ export default function LoginScreen() {
             Đăng nhập
           </Text>
 
-          {/* Form */}
           <View className="w-full items-center">
             {/* Email */}
             <TextInput
@@ -78,7 +77,9 @@ export default function LoginScreen() {
               placeholderTextColor="#bbb"
               keyboardType="email-address"
               autoCapitalize="none"
+              textAlignVertical="center" // 👈 thêm để text không bị tụt
               className="bg-white/5 border border-white/10 text-white rounded-xl text-base px-5 py-3.5 mb-4 w-full"
+              style={{ height: 50 }} // 👈 thêm height cố định
               value={email}
               onChangeText={setEmail}
             />
@@ -89,7 +90,9 @@ export default function LoginScreen() {
                 placeholder="Mật khẩu"
                 placeholderTextColor="#bbb"
                 secureTextEntry={!showPassword}
+                textAlignVertical="center"
                 className="bg-white/5 border border-white/10 text-white rounded-xl text-base px-5 py-3.5 pr-12"
+                style={{ height: 50 }}
                 value={password}
                 onChangeText={setPassword}
               />
@@ -104,7 +107,7 @@ export default function LoginScreen() {
               </TouchableOpacity>
             </View>
 
-            {/* Đăng nhập Button */}
+            {/* Login Button */}
             <TouchableOpacity
               onPress={handleLogin}
               className="bg-indigo-500 py-4 rounded-full items-center w-full mb-4"
@@ -133,7 +136,7 @@ export default function LoginScreen() {
               </Text>
             </TouchableOpacity>
 
-            {/* Đăng ký Link */}
+            {/* Sign Up Link */}
             <View className="mt-10 flex-row justify-center items-center">
               <Text className="text-white text-base">Chưa có tài khoản? </Text>
               <TouchableOpacity onPress={() => router.push("/auth/signup")}>
