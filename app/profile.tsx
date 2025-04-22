@@ -13,12 +13,20 @@ import { images } from "@/constants/images";
 import { BlurView } from "expo-blur";
 import { useAuth } from "@/app/auth/useAuth";
 
+import useLikedSongs from "@/services/useLikedSongs";
+import useLikedPlaylists from "@/services/useLikedPlaylists";
+import useFollowedArtists from "@/services/useFollowedArtists";
+
 export default function ProfileScreen() {
   const router = useRouter();
-  const { user, logout } = useAuth(); // ✅ lấy user từ useAuth
+  const { user, logout } = useAuth();
 
   const [autoPlay, setAutoPlay] = useState(false);
   const [showLyrics, setShowLyrics] = useState(false);
+
+  const { data: likedSongs } = useLikedSongs();
+  const { data: likedPlaylists } = useLikedPlaylists();
+  const { data: followedArtists } = useFollowedArtists();
 
   const handleLogout = async () => {
     await logout();
@@ -31,7 +39,7 @@ export default function ProfileScreen() {
 
   return (
     <View className="flex-1 bg-black px-6 pb-4">
-      {/* Header cố định */}
+      {/* Header */}
       <View className="absolute top-12 left-6 right-6 z-10 flex-row justify-between items-center">
         <TouchableOpacity
           onPress={handleBack}
@@ -52,12 +60,9 @@ export default function ProfileScreen() {
         </TouchableOpacity>
       </View>
 
-      {/* Nội dung scroll */}
+      {/* Scroll Content */}
       <ScrollView
-        contentContainerStyle={{
-          paddingTop: 100,
-          paddingBottom: 100,
-        }}
+        contentContainerStyle={{ paddingTop: 100, paddingBottom: 100 }}
         showsVerticalScrollIndicator={false}
       >
         {/* Avatar + Info */}
@@ -71,16 +76,14 @@ export default function ProfileScreen() {
             {user?.name || "Chưa có tên"}
           </Text>
           <Text className="text-white text-sm mt-2 font-semibold">Email</Text>
-          <Text className="text-gray-400 text-sm mb-2">
-            {user?.email || "-"}
-          </Text>
+          <Text className="text-gray-400 text-sm mb-2">{user?.email || "-"}</Text>
           <Text className="text-white text-sm font-semibold">Phone Number</Text>
           <Text className="text-gray-400 text-sm">{user?.phone || "-"}</Text>
         </View>
 
         {/* Stats */}
         <View className="flex-row justify-between mb-8">
-          {/*Liked Songs */}
+          {/* Liked Songs */}
           <TouchableOpacity
             onPress={() => router.push("/library/liked")}
             className="flex-1 mr-2"
@@ -104,7 +107,7 @@ export default function ProfileScreen() {
                 />
               </View>
               <Text className="text-gray-200 text-xs font-medium">
-                120 songs
+                {likedSongs ? `${likedSongs.length} songs` : "0"}
               </Text>
             </BlurView>
           </TouchableOpacity>
@@ -133,7 +136,7 @@ export default function ProfileScreen() {
                 />
               </View>
               <Text className="text-gray-200 text-xs font-medium">
-                12 playlists
+                {likedPlaylists ? `${likedPlaylists.length} playlists` : "0"}
               </Text>
             </BlurView>
           </TouchableOpacity>
@@ -162,7 +165,7 @@ export default function ProfileScreen() {
                 />
               </View>
               <Text className="text-gray-200 text-xs font-medium">
-                3 artists
+                {followedArtists ? `${followedArtists.length} artists` : "0"}
               </Text>
             </BlurView>
           </TouchableOpacity>
@@ -170,39 +173,30 @@ export default function ProfileScreen() {
 
         {/* Settings */}
         <Text className="text-white text-xl font-semibold mb-6">Settings</Text>
-
         <View className="mb-8">
-          {/* các mục settings giữ nguyên */}
           <View className="flex-row justify-between items-center mb-4">
             <Text className="text-white">Language(s)</Text>
             <Text className="text-gray-300">English, Vietnamese</Text>
           </View>
-
           <View className="flex-row justify-between items-center mb-4">
             <Text className="text-white">Streaming Quality</Text>
             <Text className="text-gray-300">HD</Text>
           </View>
-
           <View className="flex-row justify-between items-center mb-4">
             <Text className="text-white">Download Quality</Text>
             <Text className="text-gray-300">HD</Text>
           </View>
-
           <TouchableOpacity className="flex-row justify-between items-center mb-4">
             <View>
               <Text className="text-white">Equalizer</Text>
-              <Text className="text-gray-400 text-xs">
-                Adjust audio settings
-              </Text>
+              <Text className="text-gray-400 text-xs">Adjust audio settings</Text>
             </View>
             <Text className="text-gray-300">{`›`}</Text>
           </TouchableOpacity>
-
           <View className="flex-row justify-between items-center mb-4">
             <Text className="text-white">Auto-Play</Text>
             <Switch value={autoPlay} onValueChange={setAutoPlay} />
           </View>
-
           <View className="flex-row justify-between items-center">
             <Text className="text-white">Show Lyrics on Player</Text>
             <Switch value={showLyrics} onValueChange={setShowLyrics} />
@@ -211,7 +205,6 @@ export default function ProfileScreen() {
 
         {/* Others */}
         <Text className="text-white text-xl font-semibold mb-4">Others</Text>
-
         <View className="space-y-6">
           <TouchableOpacity className="flex-row justify-between items-center">
             <Text className="text-white">Help & Support</Text>
@@ -220,7 +213,7 @@ export default function ProfileScreen() {
         </View>
       </ScrollView>
 
-      {/* Logout cố định dưới */}
+      {/* Logout Button */}
       <View className="absolute bottom-6 left-6 right-6 z-10">
         <TouchableOpacity
           onPress={handleLogout}
