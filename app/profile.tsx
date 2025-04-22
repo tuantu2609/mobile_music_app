@@ -80,9 +80,9 @@ export default function ProfileScreen() {
 
         {/* Stats */}
         <View className="flex-row justify-between mb-8">
-          {/* Songs */}
+          {/*Liked Songs */}
           <TouchableOpacity
-            onPress={() => router.push("/profile/songs")}
+            onPress={() => router.push("/library/liked")}
             className="flex-1 mr-2"
             activeOpacity={0.9}
           >
@@ -111,7 +111,7 @@ export default function ProfileScreen() {
 
           {/* Playlists */}
           <TouchableOpacity
-            onPress={() => router.push("/profile/playlists")}
+            onPress={() => router.push("/library/playlists")}
             className="flex-1 mx-2"
             activeOpacity={0.9}
           >
@@ -140,7 +140,7 @@ export default function ProfileScreen() {
 
           {/* Artists */}
           <TouchableOpacity
-            onPress={() => router.push("/profile/artists")}
+            onPress={() => router.push("/library/artists")}
             className="flex-1 ml-2"
             activeOpacity={0.9}
           >
