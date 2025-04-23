@@ -92,6 +92,26 @@ export function useAuth() {
     init();
   }, []);
 
+  const refreshUser = async () => {
+    const currentToken = token || (await loadToken());
+
+    if (!currentToken) {
+      console.log("Không có token, không thể làm mới profile");
+      return null;
+    }
+
+    try {
+      const res = await axios.get(`${BASE_URL}/profile`, {
+        headers: { Authorization: `Bearer ${currentToken}` },
+      });
+      setUser(res.data);
+      return res.data;
+    } catch (err) {
+      console.error("Lỗi khi làm mới profile:", err?.response?.data || err.message);
+      return null;
+    }
+  };
+
   return {
     user,
     token,
@@ -101,5 +121,6 @@ export function useAuth() {
     logout,
     saveToken,
     loadToken,
+    refreshUser,
   };
 }

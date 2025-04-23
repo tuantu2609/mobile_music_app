@@ -12,6 +12,7 @@ import { icons } from "@/constants/icons";
 import { images } from "@/constants/images";
 import { BlurView } from "expo-blur";
 import { useAuth } from "@/app/auth/useAuth";
+import EditProfileForm from "@/components/EditProfileForm";
 
 import useLikedSongs from "@/services/useLikedSongs";
 import useLikedPlaylists from "@/services/useLikedPlaylists";
@@ -23,6 +24,7 @@ export default function ProfileScreen() {
 
   const [autoPlay, setAutoPlay] = useState(false);
   const [showLyrics, setShowLyrics] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
 
   const { data: likedSongs } = useLikedSongs();
   const { data: likedPlaylists } = useLikedPlaylists();
@@ -55,7 +57,10 @@ export default function ProfileScreen() {
 
         <Text className="text-white text-xl font-bold">My Profile</Text>
 
-        <TouchableOpacity className="bg-white/10 px-4 py-2 rounded-full">
+        <TouchableOpacity
+          onPress={() => setIsEditing(true)}
+          className="bg-white/10 px-4 py-2 rounded-full"
+        >
           <Text className="text-white font-medium text-sm">Edit</Text>
         </TouchableOpacity>
       </View>
@@ -68,7 +73,11 @@ export default function ProfileScreen() {
         {/* Avatar + Info */}
         <View className="items-center mb-8">
           <Image
-            source={images.avatar}
+            source={
+              user?.avatar
+                ? { uri: `http://192.168.1.4:3001${user.avatar}` }
+                : images.avatar
+            }
             className="w-24 h-24 rounded-full mb-4"
             resizeMode="cover"
           />
@@ -83,7 +92,6 @@ export default function ProfileScreen() {
 
         {/* Stats */}
         <View className="flex-row justify-between mb-8">
-          {/* Liked Songs */}
           <TouchableOpacity
             onPress={() => router.push("/library/liked")}
             className="flex-1 mr-2"
@@ -112,7 +120,6 @@ export default function ProfileScreen() {
             </BlurView>
           </TouchableOpacity>
 
-          {/* Playlists */}
           <TouchableOpacity
             onPress={() => router.push("/library/playlists")}
             className="flex-1 mx-2"
@@ -141,7 +148,6 @@ export default function ProfileScreen() {
             </BlurView>
           </TouchableOpacity>
 
-          {/* Artists */}
           <TouchableOpacity
             onPress={() => router.push("/library/artists")}
             className="flex-1 ml-2"
@@ -213,7 +219,7 @@ export default function ProfileScreen() {
         </View>
       </ScrollView>
 
-      {/* Logout Button */}
+      {/* Logout */}
       <View className="absolute bottom-6 left-6 right-6 z-10">
         <TouchableOpacity
           onPress={handleLogout}
@@ -222,6 +228,13 @@ export default function ProfileScreen() {
           <Text className="text-white text-base font-semibold">Logout</Text>
         </TouchableOpacity>
       </View>
+
+      {/* Edit Profile Form Overlay */}
+      {isEditing && (
+        <View className="absolute inset-0 bg-black/80 z-50">
+          <EditProfileForm onClose={() => setIsEditing(false)} />
+        </View>
+      )}
     </View>
   );
 }
