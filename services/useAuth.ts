@@ -57,12 +57,20 @@ export const updateProfile = async (
     name?: string;
     phone?: string;
     avatarUri?: string;
+    email?: string;
+    otp?: string;               // THÊM TRƯỜNG NÀY
+    currentPassword?: string;
+    newPassword?: string;
   }
 ) => {
   const formData = new FormData();
 
   if (data.name) formData.append("name", data.name);
   if (data.phone) formData.append("phone", data.phone);
+  if (data.email) formData.append("email", data.email);
+  if (data.otp) formData.append("otp", data.otp);                         // GỬI OTP ĐỂ XÁC MINH EMAIL
+  if (data.currentPassword) formData.append("oldPassword", data.currentPassword);  // GỬI ĐÚNG TÊN FIELD BACKEND YÊU CẦU
+  if (data.newPassword) formData.append("newPassword", data.newPassword);
 
   if (data.avatarUri) {
     const fileName = data.avatarUri.split("/").pop();

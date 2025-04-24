@@ -26,6 +26,8 @@ import playlist from "@/assets/icons/playlist.png";
 import artist from "@/assets/icons/artist.png";
 import view from "@/assets/icons/view.png";
 import hide from "@/assets/icons/hide.png";
+import edit from "@/assets/icons/edit.png";
+
 
 export const icons = {
   home,
@@ -56,4 +58,5 @@ export const icons = {
   artist,
   view,
   hide,
+  edit,
 };
