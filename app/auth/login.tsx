@@ -16,16 +16,26 @@ import React, { useState } from "react";
 import { useRouter } from "expo-router";
 import { icons } from "@/constants/icons";
 import { useAuth } from "@/app/auth/useAuth";
-import { useGoogleLogin } from "@/app/auth/useGoogleLogin";
+
+// import { useGoogleLogin } from "@/app/auth/useGoogleLogin";
+// import { GoogleSigninButton } from "@react-native-google-signin/google-signin";
+// import {
+//   GoogleSignin,
+//   isSuccessResponse,
+//   isErrorWithCode,
+//   statusCodes,
+// } from "@react-native-google-signin/google-signin";
+// import { showMessage } from "react-native-flash-message";
 
 export default function LoginScreen() {
+  // useGoogleLogin();
   const router = useRouter();
-  const { login, loading } = useAuth(); // ✅ dùng login từ useAuth để đồng bộ user + token
-  const { promptAsync, request } = useGoogleLogin();
+  const { login, loading } = useAuth();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  // const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -36,11 +46,48 @@ export default function LoginScreen() {
     const result = await login(email, password);
 
     if (result.success) {
-      router.replace("/(tabs)"); // ✅ login thành công -> chuyển tabs
+      router.replace("/(tabs)");
     } else {
-      Alert.alert("Đăng nhập thất bại", result.message || "Sai thông tin đăng nhập");
+      Alert.alert(
+        "Đăng nhập thất bại",
+        result.message || "Sai thông tin đăng nhập"
+      );
     }
   };
+
+  // const handleGoogleSignin = async () => {
+  //   try {
+  //     setIsSubmitting(true);
+  //     await GoogleSignin.hasPlayServices();
+  //     await GoogleSignin.signOut();
+  //     const response = await GoogleSignin.signIn();
+  //     if (isSuccessResponse(response)) {
+  //       showMessage({
+  //         message: "Đăng nhập Google thành công!",
+  //         type: "success",
+  //       });
+  //       router.replace("/(tabs)");
+  //     }
+  //     setIsSubmitting(false);
+  //   } catch (error) {
+  //     if (isErrorWithCode(error)) {
+  //       switch (error.code) {
+  //         case statusCodes.IN_PROGRESS:
+  //           showMessage({ message: "Đang đăng nhập...", type: "info" });
+  //           break;
+  //         case statusCodes.PLAY_SERVICES_NOT_AVAILABLE:
+  //           showMessage({
+  //             message: "Google Play Services không khả dụng",
+  //             type: "danger",
+  //           });
+  //           break;
+  //         default:
+  //           showMessage({ message: error.code, type: "warning" });
+  //       }
+  //     }
+  //     showMessage({ message: "Đăng nhập Google đã bị huỷ", type: "default" });
+  //   }
+  // };
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -50,8 +97,14 @@ export default function LoginScreen() {
       >
         {/* --- Header --- */}
         <View className="items-center mt-16 mb-6">
-          <Image source={icons.logo} className="w-40 h-12" resizeMode="contain" />
-          <Text className="text-gray-300 text-lg mt-2 tracking-wide">Just relax</Text>
+          <Image
+            source={icons.logo}
+            className="w-40 h-12"
+            resizeMode="contain"
+          />
+          <Text className="text-gray-300 text-lg mt-2 tracking-wide">
+            Just relax
+          </Text>
         </View>
 
         {/* --- Form --- */}
@@ -116,12 +169,14 @@ export default function LoginScreen() {
               {loading ? (
                 <ActivityIndicator size="small" color="#fff" />
               ) : (
-                <Text className="text-white font-semibold text-lg">Đăng nhập</Text>
+                <Text className="text-white font-semibold text-lg">
+                  Đăng nhập
+                </Text>
               )}
             </TouchableOpacity>
 
             {/* Google Login */}
-            <TouchableOpacity
+            {/* <TouchableOpacity
               disabled={!request}
               onPress={() => promptAsync()}
               className="bg-white/5 border border-white/30 py-4 rounded-full flex-row items-center justify-center w-full"
@@ -134,13 +189,24 @@ export default function LoginScreen() {
               <Text className="text-white font-medium text-base">
                 Đăng nhập với Google
               </Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
+
+            {/* <View style={{ marginTop: 16 }}>
+                <GoogleSigninButton
+                  size={GoogleSigninButton.Size.Wide}
+                  color={GoogleSigninButton.Color.Dark}
+                  onPress={handleGoogleSignin}
+                  disabled={isSubmitting}
+                />
+              </View> */}
 
             {/* Sign Up Link */}
             <View className="mt-10 flex-row justify-center items-center">
               <Text className="text-white text-base">Chưa có tài khoản? </Text>
               <TouchableOpacity onPress={() => router.push("/auth/signup")}>
-                <Text className="text-indigo-400 text-base font-semibold">Đăng ký</Text>
+                <Text className="text-indigo-400 text-base font-semibold">
+                  Đăng ký
+                </Text>
               </TouchableOpacity>
             </View>
           </View>
