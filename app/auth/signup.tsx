@@ -44,9 +44,12 @@ export default function SignupScreen() {
   const handleSubmitForm = async () => {
     if (!name.trim()) return Alert.alert("Vui lòng nhập tên đầy đủ");
     if (!validateEmail(email)) return Alert.alert("Email không hợp lệ");
-    if (!validatePhone(phone)) return Alert.alert("SĐT phải 10 số và bắt đầu bằng 0");
+    if (!validatePhone(phone))
+      return Alert.alert("SĐT phải 10 số và bắt đầu bằng 0");
     if (!validatePassword(password))
-      return Alert.alert("Mật khẩu phải ≥8 ký tự, gồm chữ + số, không khoảng trắng");
+      return Alert.alert(
+        "Mật khẩu phải ≥8 ký tự, gồm chữ + số, không khoảng trắng"
+      );
     if (password !== confirmPassword) return Alert.alert("Mật khẩu không khớp");
 
     try {
@@ -54,7 +57,7 @@ export default function SignupScreen() {
       setStep("otp");
       Alert.alert("OTP đã được gửi đến email của bạn");
     } catch (err) {
-      const msg = err?.response?.data?.error || "Gửi OTP thất bại";
+      const msg = (err as any)?.response?.data?.error || "Gửi OTP thất bại";
       Alert.alert("Lỗi", msg);
     }
   };
@@ -72,7 +75,7 @@ export default function SignupScreen() {
     } catch (err) {
       Alert.alert(
         "Đăng ký thất bại",
-        err?.response?.data?.error || "Lỗi không xác định"
+        (err as any)?.response?.data?.error || "Lỗi không xác định"
       );
     }
   };
@@ -85,8 +88,14 @@ export default function SignupScreen() {
       >
         {/* Header cố định */}
         <View className="items-center mt-16 mb-6">
-          <Image source={icons.logo} className="w-40 h-12" resizeMode="contain" />
-          <Text className="text-gray-300 text-xl mt-2 tracking-wide">Just relax</Text>
+          <Image
+            source={icons.logo}
+            className="w-40 h-12"
+            resizeMode="contain"
+          />
+          <Text className="text-gray-300 text-xl mt-2 tracking-wide">
+            Just relax
+          </Text>
         </View>
 
         {/* Scrollable Form */}
@@ -213,7 +222,9 @@ export default function SignupScreen() {
           <View className="mt-10 flex-row justify-center items-center">
             <Text className="text-white text-base">Đã có tài khoản? </Text>
             <TouchableOpacity onPress={() => router.push("/auth/login")}>
-              <Text className="text-indigo-400 text-base font-semibold">Đăng nhập</Text>
+              <Text className="text-indigo-400 text-base font-semibold">
+                Đăng nhập
+              </Text>
             </TouchableOpacity>
           </View>
         </ScrollView>

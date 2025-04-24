@@ -16,21 +16,37 @@ import React, { useState } from "react";
 import { useRouter } from "expo-router";
 import { icons } from "@/constants/icons";
 import { useAuth } from "@/app/auth/useAuth";
-import { useGoogleLogin } from "@/app/auth/useGoogleLogin";
+
+
+// import { useGoogleLogin } from "@/app/auth/useGoogleLogin";
+// import { GoogleSigninButton } from "@react-native-google-signin/google-signin";
+// import {
+//   GoogleSignin,
+//   isSuccessResponse,
+//   isErrorWithCode,
+//   statusCodes,
+// } from "@react-native-google-signin/google-signin";
+// import { showMessage } from "react-native-flash-message";
+
 import {
   sendResetOtp,
   verifyResetOtp,
   resetPassword,
 } from "@/services/useAuth";
 
+
 export default function LoginScreen() {
+  // useGoogleLogin();
   const router = useRouter();
   const { login, loading } = useAuth();
-  const { promptAsync, request } = useGoogleLogin();
+
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+
+  // const [isSubmitting, setIsSubmitting] = useState(false);
+
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const [forgotMode, setForgotMode] = useState(false);
@@ -40,6 +56,7 @@ export default function LoginScreen() {
   const [newPass, setNewPass] = useState("");
   const [confirmPass, setConfirmPass] = useState("");
   const [submitting, setSubmitting] = useState(false);
+
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -55,6 +72,44 @@ export default function LoginScreen() {
         "Đăng nhập thất bại",
         result.message || "Sai thông tin đăng nhập"
       );
+
+    }
+  };
+
+  // const handleGoogleSignin = async () => {
+  //   try {
+  //     setIsSubmitting(true);
+  //     await GoogleSignin.hasPlayServices();
+  //     await GoogleSignin.signOut();
+  //     const response = await GoogleSignin.signIn();
+  //     if (isSuccessResponse(response)) {
+  //       showMessage({
+  //         message: "Đăng nhập Google thành công!",
+  //         type: "success",
+  //       });
+  //       router.replace("/(tabs)");
+  //     }
+  //     setIsSubmitting(false);
+  //   } catch (error) {
+  //     if (isErrorWithCode(error)) {
+  //       switch (error.code) {
+  //         case statusCodes.IN_PROGRESS:
+  //           showMessage({ message: "Đang đăng nhập...", type: "info" });
+  //           break;
+  //         case statusCodes.PLAY_SERVICES_NOT_AVAILABLE:
+  //           showMessage({
+  //             message: "Google Play Services không khả dụng",
+  //             type: "danger",
+  //           });
+  //           break;
+  //         default:
+  //           showMessage({ message: error.code, type: "warning" });
+  //       }
+  //     }
+  //     showMessage({ message: "Đăng nhập Google đã bị huỷ", type: "default" });
+  //   }
+  // };
+
     }
   };
 
@@ -241,6 +296,7 @@ export default function LoginScreen() {
     </TouchableWithoutFeedback>
   );
 
+
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <KeyboardAvoidingView
@@ -318,7 +374,12 @@ export default function LoginScreen() {
               )}
             </TouchableOpacity>
 
+
+            {/* Google Login */}
+            {/* <TouchableOpacity
+
             <TouchableOpacity
+
               disabled={!request}
               onPress={() => promptAsync()}
               className="bg-white/5 border border-white/30 py-4 rounded-full flex-row items-center justify-center w-full"
@@ -330,7 +391,16 @@ export default function LoginScreen() {
               <Text className="text-white font-medium text-base">
                 Đăng nhập với Google
               </Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
+
+            {/* <View style={{ marginTop: 16 }}>
+                <GoogleSigninButton
+                  size={GoogleSigninButton.Size.Wide}
+                  color={GoogleSigninButton.Color.Dark}
+                  onPress={handleGoogleSignin}
+                  disabled={isSubmitting}
+                />
+              </View> */}
 
             <View className="mt-10 flex-row justify-center items-center">
               <Text className="text-white text-base">Chưa có tài khoản? </Text>

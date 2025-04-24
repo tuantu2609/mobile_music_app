@@ -4,6 +4,7 @@ import "./global.css";
 export default function RootLayout() {
   return (
     <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="index" options={{ headerShown: false }} />
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen name="artist/[id]" options={{ headerShown: false }} />
       <Stack.Screen name="song/[id]" options={{ headerShown: false }} />

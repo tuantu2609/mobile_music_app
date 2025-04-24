@@ -1,0 +1,1 @@
+"expo-dev-client": "~5.0.20",
