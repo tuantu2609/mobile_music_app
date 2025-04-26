@@ -16,7 +16,7 @@ const TabIcon = ({
   activeIcon?: any;
   title: string;
 }) => {
-  const opacityClass = focused ? "opacity-75" : "opacity-20";
+  const opacityClass = focused ? "opacity-100" : "opacity-50";
 
   return (
     <View className="flex flex-col items-center justify-center w-full flex-1 min-w-[112px] min-h-16 mt-10 space-y-1">

@@ -9,13 +9,15 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.anonymous.mobilemusic"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/logo.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.anonymous.mobile_music_app"
     },
     "web": {
       "bundler": "metro",
@@ -23,19 +25,35 @@
       "favicon": "./assets/images/logo.png"
     },
     "plugins": [
-      "expo-router",
-      [
-        "expo-splash-screen",
-        {
-          "image": "./assets/images/logo.png",
-          "imageWidth": 200,
-          "resizeMode": "contain",
-          "backgroundColor": "#ffffff"
-        }
-      ]
-    ],
+  "expo-router",
+  [
+    "@react-native-google-signin/google-signin",
+    {
+      "iosUrlScheme": "com.googleusercontent.apps.472188167401-735m0071dlocoo3e416p2ik3scd991bb"
+    }
+  ],
+  [
+    "expo-splash-screen",
+    {
+      "image": "./assets/images/logo.png",
+      "imageWidth": 200,
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    }
+  ],
+  "expo-secure-store"
+],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "API_URL": "http://192.168.1.8:3001", 
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "8b91493e-d078-45b6-80b4-afc00d46ae10"
+      }
     }
   }
 }

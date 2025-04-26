@@ -11,8 +11,9 @@ import PlaylistCard from "@/components/PlaylistCard";
 import RecommendationCard from "@/components/RecommendationCard";
 import BannerCard from "@/components/BannerCard";
 import { SafeAreaView } from "react-native-safe-area-context";
-
 import { usePlayerStore } from "@/store/usePlayerStore";
+
+import useSongList from "@/services/useSongList";
 
 const onSongPress = () => {
   usePlayerStore.getState().setCurrentSong({
@@ -29,6 +30,7 @@ export default function Index() {
   const [activeTab, setActiveTab] = useState("For you");
 
   const tabs = ["For you", "Relax", "Workout", "Travel"];
+  const { data: songs, loading, error } = useSongList();
 
   return (
     <SafeAreaView className="flex-1 bg-primary">
@@ -72,7 +74,7 @@ export default function Index() {
                 />
               </TouchableOpacity>
 
-              <TouchableOpacity>
+              <TouchableOpacity onPress={() => router.push("/profile")}>
                 <Image
                   source={images.avatar}
                   className="w-[48px] h-[48px] rounded-full"
@@ -151,24 +153,33 @@ export default function Index() {
                   See more
                 </Text>
               </View>
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={{ paddingRight: 20 }}
-              >
-                <SongCard
-                  title="Tên bài hát 1"
-                  image={images.song2}
-                  onPress={onSongPress}
-                />
-                <SongCard title="Tên bài hát 2" image={images.song} />
-                <SongCard title="Tên bài hát 1" image={images.song2} />
-                <SongCard title="Tên bài hát 2" image={images.song} />
-                <SongCard title="Tên bài hát 1" image={images.song2} />
-                <SongCard title="Tên bài hát 2" image={images.song} />
-                <SongCard title="Tên bài hát 1" image={images.song2} />
-                <SongCard title="Tên bài hát 2" image={images.song} />
-              </ScrollView>
+              {loading ? (
+                <Text className="text-white">Đang tải...</Text>
+              ) : error ? (
+                <Text className="text-red-400">{error.message}</Text>
+              ) : (
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={{ paddingRight: 20 }}
+                >
+                  {songs?.slice(0, 10).map((song) => (
+                    <SongCard
+                      key={song.id}
+                      title={song.title}
+                      image={{ uri: song.album_cover }}
+                      onPress={() =>
+                        usePlayerStore.getState().setCurrentSong({
+                          id: song.id,
+                          title: song.title,
+                          subtitle: song.Artists?.[0]?.name ?? "Unknown Artist",
+                          image: song.album_cover,
+                        })
+                      }
+                    />
+                  ))}
+                </ScrollView>
+              )}
             </View>
 
             {/* Mix section */}
