@@ -1,5 +1,6 @@
 import axios from "axios";
 import useFetch from "./useFetch";
+import Constants from "expo-constants";
 
 export type Artist = {
   id: string;
@@ -9,9 +10,12 @@ export type Artist = {
   external_url: string;
 };
 
-const API_URL = "http://192.168.1.4:3001/api/users/followed-artists";
+const API_URL = Constants.expoConfig?.extra?.API_URL;
+const BASE_URL = `${API_URL}/api/users`;
 
 const useFollowedArtists = () =>
-  useFetch<Artist[]>(() => axios.get(API_URL, { withCredentials: true }).then((res) => res.data));
+  useFetch<Artist[]>(() => 
+    axios.get(`${BASE_URL}/followed-artists`, { withCredentials: true }).then((res) => res.data)
+  );
 
 export default useFollowedArtists;

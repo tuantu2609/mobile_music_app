@@ -18,6 +18,10 @@ import useLikedSongs from "@/services/useLikedSongs";
 import useLikedPlaylists from "@/services/useLikedPlaylists";
 import useFollowedArtists from "@/services/useFollowedArtists";
 
+import Constants from "expo-constants";
+
+const API_URL = Constants.expoConfig?.extra?.API_URL;
+
 export default function ProfileScreen() {
   const router = useRouter();
   const { user, logout, refreshUser  } = useAuth();
@@ -82,7 +86,7 @@ export default function ProfileScreen() {
               user?.avatar
                 ? user.avatar.startsWith("http")
                   ? { uri: user.avatar } // ✅ ảnh từ Cloudinary
-                  : { uri: `http://192.168.1.4:3001${user.avatar}` } // ✅ ảnh local
+                  : { uri: `${API_URL}${user.avatar}` } // ✅ ảnh local
                 : images.avatar
             }
             className="w-24 h-24 rounded-full mb-4"

@@ -18,7 +18,6 @@ import { useRouter } from "expo-router";
 import { icons } from "@/constants/icons";
 import { useAuth } from "@/app/auth/useAuth";
 
-
 // import { useGoogleLogin } from "@/app/auth/useGoogleLogin";
 // import { GoogleSigninButton } from "@react-native-google-signin/google-signin";
 // import {
@@ -223,7 +222,92 @@ export default function LoginScreen() {
                 </>
               )}
 
-              {/* Step 2, 3... */}
+              {step === 2 && (
+                <>
+                  <Text className="text-white text-xl font-bold mb-4 text-center">
+                    Xác nhận OTP
+                  </Text>
+                  <TextInput
+                    value={otp}
+                    onChangeText={setOtp}
+                    placeholder="Mã OTP"
+                    placeholderTextColor="#aaa"
+                    keyboardType="numeric"
+                    className="bg-black/30 text-white px-5 py-4 rounded-lg mb-4 text-base"
+                  />
+                  <TouchableOpacity
+                    onPress={handleVerifyOtp}
+                    className="bg-indigo-500 py-4 rounded-xl items-center"
+                    disabled={submitting}
+                  >
+                    <Text className="text-white font-semibold text-lg">
+                      Xác nhận
+                    </Text>
+                  </TouchableOpacity>
+                </>
+              )}
+
+              {step === 3 && (
+                <>
+                  <Text className="text-white text-xl font-bold mb-4 text-center">
+                    Đặt lại mật khẩu
+                  </Text>
+
+                  {/* Mật khẩu mới */}
+                  <View className="relative mb-4">
+                    <TextInput
+                      secureTextEntry={!showPassword}
+                      value={newPass}
+                      onChangeText={setNewPass}
+                      placeholder="Mật khẩu mới"
+                      placeholderTextColor="#aaa"
+                      className="bg-black/30 text-white px-5 py-4 pr-12 rounded-lg text-base"
+                    />
+                    <TouchableOpacity
+                      className="absolute right-4 top-4"
+                      onPress={() => setShowPassword(!showPassword)}
+                    >
+                      <Image
+                        source={showPassword ? icons.view : icons.hide}
+                        style={{ width: 22, height: 22, tintColor: "#bbb" }}
+                      />
+                    </TouchableOpacity>
+                  </View>
+
+                  {/* Xác nhận mật khẩu */}
+                  <View className="relative mb-4">
+                    <TextInput
+                      secureTextEntry={!showConfirmPassword}
+                      value={confirmPass}
+                      onChangeText={setConfirmPass}
+                      placeholder="Xác nhận mật khẩu"
+                      placeholderTextColor="#aaa"
+                      className="bg-black/30 text-white px-5 py-4 pr-12 rounded-lg text-base"
+                    />
+                    <TouchableOpacity
+                      className="absolute right-4 top-4"
+                      onPress={() =>
+                        setShowConfirmPassword(!showConfirmPassword)
+                      }
+                    >
+                      <Image
+                        source={showConfirmPassword ? icons.view : icons.hide}
+                        style={{ width: 22, height: 22, tintColor: "#bbb" }}
+                      />
+                    </TouchableOpacity>
+                  </View>
+
+                  <TouchableOpacity
+                    onPress={handleResetPassword}
+                    className="bg-indigo-500 py-4 rounded-xl items-center"
+                    disabled={submitting}
+                  >
+                    <Text className="text-white font-semibold text-lg">
+                      Đổi mật khẩu
+                    </Text>
+                  </TouchableOpacity>
+                </>
+              )}
             </View>
           </ScrollView>
         </KeyboardAvoidingView>
