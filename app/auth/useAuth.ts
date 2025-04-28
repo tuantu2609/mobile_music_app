@@ -4,7 +4,9 @@ import * as SecureStore from "expo-secure-store";
 import axios from "axios";
 import { loginUser } from "@/services/useAuth";
 
-const BASE_URL = "http://192.168.1.4:3001/api/users";
+import Constants from "expo-constants";
+const API_URL = Constants.expoConfig?.extra?.API_URL;
+const BASE_URL = `${API_URL}/api/users`;
 
 export function useAuth() {
   const [user, setUser] = useState<any>(null);
@@ -45,7 +47,10 @@ export function useAuth() {
       return { success: true };
     } catch (err: any) {
       console.error("Login error:", err?.response?.data || err.message);
-      return { success: false, message: err?.response?.data?.error || "Login failed" };
+      return {
+        success: false,
+        message: err?.response?.data?.error || "Login failed",
+      };
     } finally {
       setLoading(false);
     }
@@ -53,14 +58,14 @@ export function useAuth() {
 
   // Fetch Profile
   const fetchProfile = async () => {
-    const currentToken = token || await loadToken();
+    const currentToken = token || (await loadToken());
     console.log("TOKEN HIỆN TẠI:", currentToken);
-  
+
     if (!currentToken) {
       console.log("Không có token, không fetch profile");
       return null;
     }
-  
+
     try {
       const res = await axios.get(`${BASE_URL}/profile`, {
         headers: { Authorization: `Bearer ${currentToken}` },
@@ -73,7 +78,6 @@ export function useAuth() {
       return null;
     }
   };
-  
 
   // Logout
   const logout = async () => {
@@ -107,7 +111,10 @@ export function useAuth() {
       setUser(res.data);
       return res.data;
     } catch (err) {
-      console.error("Lỗi khi làm mới profile:", err?.response?.data || err.message);
+      console.error(
+        "Lỗi khi làm mới profile:",
+        err?.response?.data || err.message
+      );
       return null;
     }
   };

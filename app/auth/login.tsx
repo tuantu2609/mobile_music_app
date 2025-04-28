@@ -17,7 +17,6 @@ import { useRouter } from "expo-router";
 import { icons } from "@/constants/icons";
 import { useAuth } from "@/app/auth/useAuth";
 
-
 // import { useGoogleLogin } from "@/app/auth/useGoogleLogin";
 // import { GoogleSigninButton } from "@react-native-google-signin/google-signin";
 // import {
@@ -34,13 +33,10 @@ import {
   resetPassword,
 } from "@/services/useAuth";
 
-
 export default function LoginScreen() {
   // useGoogleLogin();
   const router = useRouter();
   const { login, loading } = useAuth();
-
-
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -57,7 +53,6 @@ export default function LoginScreen() {
   const [confirmPass, setConfirmPass] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-
   const handleLogin = async () => {
     if (!email || !password) {
       Alert.alert("Vui lòng nhập email và mật khẩu");
@@ -72,7 +67,6 @@ export default function LoginScreen() {
         "Đăng nhập thất bại",
         result.message || "Sai thông tin đăng nhập"
       );
-
     }
   };
 
@@ -109,9 +103,6 @@ export default function LoginScreen() {
   //     showMessage({ message: "Đăng nhập Google đã bị huỷ", type: "default" });
   //   }
   // };
-
-    }
-  };
 
   const handleSendOtp = async () => {
     if (!forgotEmail) return Alert.alert("Vui lòng nhập email");
@@ -296,7 +287,6 @@ export default function LoginScreen() {
     </TouchableWithoutFeedback>
   );
 
-
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <KeyboardAvoidingView
@@ -373,7 +363,6 @@ export default function LoginScreen() {
                 </Text>
               )}
             </TouchableOpacity>
-
 
             {/* Google Login */}
             {/* <TouchableOpacity
