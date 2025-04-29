@@ -12,7 +12,6 @@ export default function IndexScreen() {
     }, 10);
     return () => clearTimeout(timer);
   }, []);
-  console.log("✅ index.tsx đã được load!");
   return (
     <View className="flex-1 justify-center items-center bg-black">
       <ActivityIndicator size="large" color="#fff" />

@@ -12,25 +12,68 @@ import RecommendationCard from "@/components/RecommendationCard";
 import BannerCard from "@/components/BannerCard";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { usePlayerStore } from "@/store/usePlayerStore";
+import axios from "axios";
 
+import { useAuth } from "@/app/auth/useAuth";
+import Constants from "expo-constants";
+const API_URL = Constants.expoConfig?.extra?.API_URL;
+
+// lấy danh sách bài hát từ API
 import useSongList from "@/services/useSongList";
+import { Song } from "@/services/useSongList";
 
-const onSongPress = () => {
-  usePlayerStore.getState().setCurrentSong({
-    id: "1",
-    title: "Giá Như",
-    subtitle: "Soobin Hoàng Sơn",
-    image:
-      "https://photo-resize-zmp3.zadn.vn/w600_r1x1_jpeg/cover/1/d/6/a/1d6a1fa9aaf8b3be17dd64f396fe7ed6.jpg",
-  });
-};
+// lấy danh sách bài hát mới từ API
+import useNewReleases from "@/services/useNewReleases";
+
+// lấy danh sách playlists từ API
+import usePlaylistList, { Playlist } from "@/services/usePlaylistList";
 
 export default function Index() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("For you");
 
   const tabs = ["For you", "Relax", "Workout", "Travel"];
+  const { user } = useAuth();
+  // lấy bài hát
   const { data: songs, loading, error } = useSongList();
+  // lấy bài hát mới
+  const {
+    data: newReleases,
+    loading: loadingNewReleases,
+    error: errorNewReleases,
+  } = useNewReleases();
+  // lấy playlist
+  const {
+    data: playlists,
+    loading: loadingPlaylists,
+    error: errorPlaylists,
+  } = usePlaylistList(10);
+
+  const handleSongPress = async (song: Song) => {
+    if (!user) {
+      console.log("Chưa đăng nhập");
+      return;
+    }
+
+    // Cập nhật bài hát đang phát
+    usePlayerStore.getState().setCurrentSong({
+      id: song.id,
+      title: song.title,
+      subtitle: song.Artists?.[0]?.name ?? "Unknown Artist",
+      image: song.album_cover,
+      url: song.url,
+    });
+
+    // Gửi API ghi lịch sử phát
+    // try {
+    //   await axios.post(`${API_URL}/api/plays/play`, {
+    //     userId: user.id,
+    //     songId: song.id,
+    //   });
+    // } catch (err) {
+    //   console.error("Lỗi ghi lại bài hát", err);
+    // }
+  };
 
   return (
     <SafeAreaView className="flex-1 bg-primary">
@@ -47,6 +90,7 @@ export default function Index() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 20 }}
       >
+        {/* đã fix header*/}
         {/* Phần header */}
         <View className="pb-5 px-5">
           <View className="flex-row justify-between items-center">
@@ -57,7 +101,9 @@ export default function Index() {
                   className="w-6 h-6 mr-2"
                   resizeMode="contain"
                 />
-                <Text className="text-white text-2xl font-bold">Hi Tu,</Text>
+                <Text className="text-white text-2xl font-bold">
+                  Hi {user?.name || "User"},
+                </Text>
               </View>
 
               <Text className="text-white text-3xl">Good Evening</Text>
@@ -76,7 +122,13 @@ export default function Index() {
 
               <TouchableOpacity onPress={() => router.push("/profile")}>
                 <Image
-                  source={images.avatar}
+                  source={
+                    user?.avatar
+                      ? user.avatar.startsWith("http")
+                        ? { uri: user.avatar }
+                        : { uri: `${API_URL}${user.avatar}` }
+                      : images.avatar
+                  }
                   className="w-[48px] h-[48px] rounded-full"
                   resizeMode="cover"
                 />
@@ -168,14 +220,7 @@ export default function Index() {
                       key={song.id}
                       title={song.title}
                       image={{ uri: song.album_cover }}
-                      onPress={() =>
-                        usePlayerStore.getState().setCurrentSong({
-                          id: song.id,
-                          title: song.title,
-                          subtitle: song.Artists?.[0]?.name ?? "Unknown Artist",
-                          image: song.album_cover,
-                        })
-                      }
+                      onPress={() => handleSongPress(song)}
                     />
                   ))}
                 </ScrollView>
@@ -286,29 +331,32 @@ export default function Index() {
                 <Text className="text-white text-3xl font-bold">
                   New Releases
                 </Text>
-                <Text
-                  className="text-gray-400 text-base text-xl"
-                  onPress={() => {
-                    console.log("See more pressed");
-                  }}
-                >
-                  See more
-                </Text>
+                <TouchableOpacity onPress={() => router.push("/new-releases")}>
+                  <Text className="text-gray-400 text-base text-xl">
+                    See more
+                  </Text>
+                </TouchableOpacity>
               </View>
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={{ paddingRight: 20 }}
-              >
-                <SongCard title="Tên bài hát 1" image={images.song} />
-                <SongCard title="Tên bài hát 2" image={images.song2} />
-                <SongCard title="Tên bài hát 1" image={images.song} />
-                <SongCard title="Tên bài hát 2" image={images.song2} />
-                <SongCard title="Tên bài hát 1" image={images.song} />
-                <SongCard title="Tên bài hát 2" image={images.song2} />
-                <SongCard title="Tên bài hát 1" image={images.song} />
-                <SongCard title="Tên bài hát 2" image={images.song2} />
-              </ScrollView>
+              {loadingNewReleases ? (
+                <Text className="text-white">Đang tải New Releases...</Text>
+              ) : errorNewReleases ? (
+                <Text className="text-red-400">{errorNewReleases.message}</Text>
+              ) : (
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={{ paddingRight: 20 }}
+                >
+                  {newReleases?.slice(0, 10).map((song) => (
+                    <SongCard
+                      key={song.id}
+                      title={song.title}
+                      image={{ uri: song.album_cover }}
+                      onPress={() => handleSongPress(song)}
+                    />
+                  ))}
+                </ScrollView>
+              )}
             </View>
 
             {/* Playlist */}
@@ -317,34 +365,28 @@ export default function Index() {
                 <Text className="text-white text-3xl font-bold">
                   Top Playlists
                 </Text>
-                <Text
-                  className="text-gray-400 text-base text-xl"
-                  onPress={() => {
-                    console.log("See more pressed");
-                  }}
-                >
-                  See more
-                </Text>
+                <TouchableOpacity onPress={() => router.push("/playlists")}>
+                  <Text className="text-gray-400 text-base text-xl">
+                    See more
+                  </Text>
+                </TouchableOpacity>
               </View>
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={{ paddingRight: 20 }}
-              >
-                <PlaylistCard
-                  playlist={{
-                    name: "Bật Nó Lên",
-                    images: [
-                      {
-                        url: "https://product.hstatic.net/1000304920/product/soobin_batnolen_430f2bf37eb44a37a8349b645081e221_master.jpg",
-                        width: 640,
-                        height: 640,
-                      },
-                    ],
-                    creatorName: "John Doe",
-                  }}
-                />
-              </ScrollView>
+
+              {loadingPlaylists ? (
+                <Text className="text-white">Đang tải playlists...</Text>
+              ) : errorPlaylists ? (
+                <Text className="text-red-400">{errorPlaylists.message}</Text>
+              ) : (
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={{ paddingRight: 20 }}
+                >
+                  {playlists?.map((playlist) => (
+                    <PlaylistCard key={playlist.id} playlist={playlist} />
+                  ))}
+                </ScrollView>
+              )}
             </View>
           </>
         )}
