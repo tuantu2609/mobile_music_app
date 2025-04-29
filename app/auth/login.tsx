@@ -106,10 +106,8 @@ export default function LoginScreen() {
   //   }
   // };
 
-
   //   }
   // };
-
 
   const handleSendOtp = async () => {
     if (!forgotEmail) return Alert.alert("Vui lòng nhập email");
@@ -248,6 +246,7 @@ export default function LoginScreen() {
                   </TouchableOpacity>
                 </>
               )}
+
               {step === 3 && (
                 <>
                   <Text className="text-white text-xl font-bold mb-4 text-center">
@@ -315,6 +314,7 @@ export default function LoginScreen() {
       </TouchableWithoutFeedback>
     );
   };
+
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <KeyboardAvoidingView

@@ -5,8 +5,6 @@ import axios from "axios";
 import { loginUser } from "@/services/useAuth";
 import Constants from "expo-constants"; // 🔥 import Constants để lấy API_URL động
 
-import Constants from "expo-constants";
-
 const API_URL = Constants.expoConfig?.extra?.API_URL;
 const BASE_URL = `${API_URL}/api/users`;
 
@@ -49,10 +47,7 @@ export function useAuth() {
       return { success: true };
     } catch (err: any) {
       console.error("Login error:", err?.response?.data || err.message);
-      return {
-        success: false,
-        message: err?.response?.data?.error || "Login failed",
-      };
+      return { success: false, message: err?.response?.data?.error || "Login failed" };
     } finally {
       setLoading(false);
     }
@@ -60,7 +55,7 @@ export function useAuth() {
 
   // Fetch Profile
   const fetchProfile = async () => {
-    const currentToken = token || (await loadToken());
+    const currentToken = token || await loadToken();
     console.log("TOKEN HIỆN TẠI:", currentToken);
 
     if (!currentToken) {
@@ -81,24 +76,6 @@ export function useAuth() {
     }
   };
 
-
-  // Logout
-  const logout = async () => {
-    await clearToken();
-    setUser(null);
-  };
-  // Load profile khi app mở lại
-  useEffect(() => {
-    const init = async () => {
-      const storedToken = await loadToken();
-      if (storedToken) {
-        await fetchProfile();
-      }
-    };
-    init();
-  }, []);
-
-
   // Refresh User
   const refreshUser = async () => {
     const currentToken = token || (await loadToken());
@@ -114,12 +91,6 @@ export function useAuth() {
       });
       setUser(res.data);
       return res.data;
-
-    } catch (err) {
-      console.error(
-        "Lỗi khi làm mới profile:",
-        err?.response?.data || err.message
-      );
     } catch (err: any) {
       console.error("Lỗi khi làm mới profile:", err?.response?.data || err.message);
       return null;

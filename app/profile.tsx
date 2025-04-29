@@ -83,14 +83,11 @@ export default function ProfileScreen() {
         <View className="items-center mb-8">
           <Image
             source={
-              user?.avatar ? { uri: `${API_URL}${user.avatar}` } : images.avatar
-
               user?.avatar
                 ? user.avatar.startsWith("http")
                   ? { uri: user.avatar } // ✅ ảnh từ Cloudinary
                   : { uri: `${API_URL}${user.avatar}` } // ✅ ảnh local
                 : images.avatar
-
             }
             className="w-24 h-24 rounded-full mb-4"
             resizeMode="cover"
