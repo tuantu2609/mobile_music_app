@@ -18,9 +18,13 @@ import useLikedSongs from "@/services/useLikedSongs";
 import useLikedPlaylists from "@/services/useLikedPlaylists";
 import useFollowedArtists from "@/services/useFollowedArtists";
 
+import Constants from "expo-constants";
+
+const API_URL = Constants.expoConfig?.extra?.API_URL;
+
 export default function ProfileScreen() {
   const router = useRouter();
-  const { user, logout } = useAuth();
+  const { user, logout, refreshUser  } = useAuth();
 
   const [autoPlay, setAutoPlay] = useState(false);
   const [showLyrics, setShowLyrics] = useState(false);
@@ -59,9 +63,14 @@ export default function ProfileScreen() {
 
         <TouchableOpacity
           onPress={() => setIsEditing(true)}
-          className="bg-white/10 px-4 py-2 rounded-full"
+          className="flex-row items-center space-x-2 bg-white/15 border border-white/20 px-4 py-2 rounded-full shadow-md"
         >
-          <Text className="text-white font-medium text-sm">Edit</Text>
+          <Image
+            source={icons.edit}
+            className="w-4 h-4"
+            resizeMode="contain"
+            tintColor="#fff"
+          />
         </TouchableOpacity>
       </View>
 
@@ -75,7 +84,9 @@ export default function ProfileScreen() {
           <Image
             source={
               user?.avatar
-                ? { uri: `http://192.168.1.4:3001${user.avatar}` }
+                ? user.avatar.startsWith("http")
+                  ? { uri: user.avatar } // ✅ ảnh từ Cloudinary
+                  : { uri: `${API_URL}${user.avatar}` } // ✅ ảnh local
                 : images.avatar
             }
             className="w-24 h-24 rounded-full mb-4"
@@ -85,7 +96,9 @@ export default function ProfileScreen() {
             {user?.name || "Chưa có tên"}
           </Text>
           <Text className="text-white text-sm mt-2 font-semibold">Email</Text>
-          <Text className="text-gray-400 text-sm mb-2">{user?.email || "-"}</Text>
+          <Text className="text-gray-400 text-sm mb-2">
+            {user?.email || "-"}
+          </Text>
           <Text className="text-white text-sm font-semibold">Phone Number</Text>
           <Text className="text-gray-400 text-sm">{user?.phone || "-"}</Text>
         </View>
@@ -195,7 +208,9 @@ export default function ProfileScreen() {
           <TouchableOpacity className="flex-row justify-between items-center mb-4">
             <View>
               <Text className="text-white">Equalizer</Text>
-              <Text className="text-gray-400 text-xs">Adjust audio settings</Text>
+              <Text className="text-gray-400 text-xs">
+                Adjust audio settings
+              </Text>
             </View>
             <Text className="text-gray-300">{`›`}</Text>
           </TouchableOpacity>
@@ -232,7 +247,10 @@ export default function ProfileScreen() {
       {/* Edit Profile Form Overlay */}
       {isEditing && (
         <View className="absolute inset-0 bg-black/80 z-50">
-          <EditProfileForm onClose={() => setIsEditing(false)} />
+          <EditProfileForm
+            onClose={() => setIsEditing(false)}
+            onSaveSuccess={refreshUser}
+          />
         </View>
       )}
     </View>

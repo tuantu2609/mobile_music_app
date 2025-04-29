@@ -1,9 +1,8 @@
 import axios from "axios";
 import Constants from "expo-constants";
-// const BASE_URL = "http://192.168.1.4:3001/api/users";
+
 const API_URL = Constants.expoConfig?.extra?.API_URL;
 const BASE_URL = `${API_URL}/api/users`;
-
 
 // Đăng ký
 export const registerUser = async (data: {
@@ -25,18 +24,17 @@ export const sendResetOtp = async (email: string) => {
   return await axios.post(`${BASE_URL}/send-reset-otp`, { email });
 };
 
+// Xác thực OTP đăng ký
 export const verifyOtp = async (email: string, otp: string) => {
   return await axios.post(`${BASE_URL}/verify-otp`, { email, otp });
 };
 
-
-export const loginUser = async (data: { email: string; password: string }) => {
-
 // Đăng nhập
-
+export const loginUser = async (data: { email: string; password: string }) => {
   return await axios.post(`${BASE_URL}/login`, data);
 };
 
+// Xác thực OTP reset password
 export const verifyResetOtp = async (email: string, otp: string) => {
   return await axios.post(`${BASE_URL}/verify-reset-otp`, { email, otp });
 };
@@ -50,19 +48,23 @@ export const resetPassword = async (email: string, newPassword: string, otp: str
   });
 };
 
-//edit profile
+// Cập nhật hồ sơ
 export const updateProfile = async (
   token: string,
   data: {
     name?: string;
     phone?: string;
     avatarUri?: string;
+    currentPassword?: string;
+    newPassword?: string;
   }
 ) => {
   const formData = new FormData();
 
   if (data.name) formData.append("name", data.name);
   if (data.phone) formData.append("phone", data.phone);
+  if (data.currentPassword) formData.append("oldPassword", data.currentPassword);
+  if (data.newPassword) formData.append("newPassword", data.newPassword);
 
   if (data.avatarUri) {
     const fileName = data.avatarUri.split("/").pop();

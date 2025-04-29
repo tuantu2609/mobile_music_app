@@ -3,8 +3,10 @@ import { useState, useEffect } from "react";
 import * as SecureStore from "expo-secure-store";
 import axios from "axios";
 import { loginUser } from "@/services/useAuth";
+import Constants from "expo-constants"; // 🔥 import Constants để lấy API_URL động
 
-const BASE_URL = "http://192.168.1.4:3001/api/users";
+const API_URL = Constants.expoConfig?.extra?.API_URL;
+const BASE_URL = `${API_URL}/api/users`;
 
 export function useAuth() {
   const [user, setUser] = useState<any>(null);
@@ -17,7 +19,7 @@ export function useAuth() {
     setToken(token);
   };
 
-  // Xoá token
+  // Xóa token
   const clearToken = async () => {
     await SecureStore.deleteItemAsync("token");
     setToken(null);
@@ -55,12 +57,12 @@ export function useAuth() {
   const fetchProfile = async () => {
     const currentToken = token || await loadToken();
     console.log("TOKEN HIỆN TẠI:", currentToken);
-  
+
     if (!currentToken) {
       console.log("Không có token, không fetch profile");
       return null;
     }
-  
+
     try {
       const res = await axios.get(`${BASE_URL}/profile`, {
         headers: { Authorization: `Bearer ${currentToken}` },
@@ -68,12 +70,32 @@ export function useAuth() {
       console.log("PROFILE:", res.data);
       setUser(res.data);
       return res.data;
-    } catch (err) {
+    } catch (err: any) {
       console.error("LỖI PROFILE:", err?.response?.data || err.message);
       return null;
     }
   };
-  
+
+  // Refresh User
+  const refreshUser = async () => {
+    const currentToken = token || (await loadToken());
+
+    if (!currentToken) {
+      console.log("Không có token, không thể làm mới profile");
+      return null;
+    }
+
+    try {
+      const res = await axios.get(`${BASE_URL}/profile`, {
+        headers: { Authorization: `Bearer ${currentToken}` },
+      });
+      setUser(res.data);
+      return res.data;
+    } catch (err: any) {
+      console.error("Lỗi khi làm mới profile:", err?.response?.data || err.message);
+      return null;
+    }
+  };
 
   // Logout
   const logout = async () => {
@@ -91,26 +113,6 @@ export function useAuth() {
     };
     init();
   }, []);
-
-  const refreshUser = async () => {
-    const currentToken = token || (await loadToken());
-
-    if (!currentToken) {
-      console.log("Không có token, không thể làm mới profile");
-      return null;
-    }
-
-    try {
-      const res = await axios.get(`${BASE_URL}/profile`, {
-        headers: { Authorization: `Bearer ${currentToken}` },
-      });
-      setUser(res.data);
-      return res.data;
-    } catch (err) {
-      console.error("Lỗi khi làm mới profile:", err?.response?.data || err.message);
-      return null;
-    }
-  };
 
   return {
     user,

@@ -1,5 +1,6 @@
 import axios from "axios";
 import useFetch from "./useFetch";
+import Constants from "expo-constants";
 
 export type Playlist = {
   id: string;
@@ -10,9 +11,12 @@ export type Playlist = {
   external_url: string;
 };
 
-const API_URL = "http://192.168.1.4:3001/api/users/liked-playlists";
+const API_URL = Constants.expoConfig?.extra?.API_URL;
+const BASE_URL = `${API_URL}/api/users`;
 
 const useLikedPlaylists = () =>
-  useFetch<Playlist[]>(() => axios.get(API_URL, { withCredentials: true }).then((res) => res.data));
+  useFetch<Playlist[]>(() => 
+    axios.get(`${BASE_URL}/liked-playlists`, { withCredentials: true }).then((res) => res.data)
+  );
 
 export default useLikedPlaylists;
