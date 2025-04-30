@@ -28,6 +28,7 @@ import view from "@/assets/icons/view.png";
 import hide from "@/assets/icons/hide.png";
 import pause from "@/assets/icons/pause.png";
 import edit from "@/assets/icons/edit.png";
+import remove from "@/assets/icons/remove.png";
 
 
 export const icons = {
@@ -61,4 +62,5 @@ export const icons = {
   hide,
   pause,
   edit,
+  remove,
 };

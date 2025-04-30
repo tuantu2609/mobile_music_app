@@ -85,3 +85,61 @@ export const updateProfile = async (
 
   return res.data;
 };
+
+// Like a song
+export const likeSong = async (songId: string, token: string) => {
+  return await axios.post(
+    `${BASE_URL}/like-song`,
+    { songId },
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+};
+
+// Unlike a song
+export const unlikeSong = async (songId: string, token: string) => {
+  return await axios.delete(`${BASE_URL}/unlike-song`, {
+    data: { songId },
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+// Get total likes for a song
+export const getTotalLikesOfSong = async (songId: string, token: string) => {
+  try {
+    const response = await axios.get(`${API_URL}/songs/${songId}/total-likes`, {
+      headers: {
+        Authorization: `Bearer ${token}`, // Thêm token vào headers
+      },
+    });
+    return response.data; // { songId, likeCount }
+  } catch (error) {
+    console.error("Error fetching total likes:", error);
+    throw error;
+  }
+};
+
+// Lấy danh sách bài hát đã liked của người dùng
+export const getUserLikedSongs = async (userId: string, token: string, limit = 10, offset = 0) => {
+  try {
+    const response = await axios.get(`${BASE_URL}/${userId}/liked-songs`, {
+      headers: {
+        Authorization: `Bearer ${token}`, // Đảm bảo bạn đã có token
+      },
+      params: {
+        limit: limit,
+        offset: offset,
+      },
+    });
+
+    return response.data; // Trả về dữ liệu danh sách bài hát
+  } catch (error) {
+    console.error("Error fetching liked songs:", error);
+    throw error; // Ném lỗi để xử lý ở nơi gọi
+  }
+};

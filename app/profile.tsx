@@ -6,33 +6,55 @@ import {
   Switch,
   ScrollView,
 } from "react-native";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "expo-router";
 import { icons } from "@/constants/icons";
 import { images } from "@/constants/images";
 import { BlurView } from "expo-blur";
 import { useAuth } from "@/app/auth/useAuth";
-import EditProfileForm from "@/components/EditProfileForm";
+import { getUserLikedSongs } from "@/services/useAuth"; // ⬅️ API gọi liked songs
 
-import useLikedSongs from "@/services/useLikedSongs";
 import useLikedPlaylists from "@/services/useLikedPlaylists";
 import useFollowedArtists from "@/services/useFollowedArtists";
 
 import Constants from "expo-constants";
+import EditProfileForm from "@/components/EditProfileForm";
 
 const API_URL = Constants.expoConfig?.extra?.API_URL;
 
 export default function ProfileScreen() {
   const router = useRouter();
-  const { user, logout, refreshUser  } = useAuth();
+  const { user, logout, refreshUser, loadToken } = useAuth();
 
   const [autoPlay, setAutoPlay] = useState(false);
   const [showLyrics, setShowLyrics] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
 
-  const { data: likedSongs } = useLikedSongs();
+  const [likedSongsCount, setLikedSongsCount] = useState(0);
+
   const { data: likedPlaylists } = useLikedPlaylists();
   const { data: followedArtists } = useFollowedArtists();
+
+  useEffect(() => {
+    const fetchLikedSongsCount = async () => {
+      try {
+        const token = await loadToken();
+        if (!token || !user?.id) {
+          console.error("Token or user not found!");
+          return;
+        }
+
+        const response = await getUserLikedSongs(user.id, token, 10, 0);
+        setLikedSongsCount(response.length);
+      } catch (err) {
+        console.error("Error fetching liked songs:", err);
+      }
+    };
+
+    if (user?.id) {
+      fetchLikedSongsCount();
+    }
+  }, [user]);
 
   const handleLogout = async () => {
     await logout();
@@ -85,8 +107,8 @@ export default function ProfileScreen() {
             source={
               user?.avatar
                 ? user.avatar.startsWith("http")
-                  ? { uri: user.avatar } // ✅ ảnh từ Cloudinary
-                  : { uri: `${API_URL}${user.avatar}` } // ✅ ảnh local
+                  ? { uri: user.avatar }
+                  : { uri: `${API_URL}${user.avatar}` }
                 : images.avatar
             }
             className="w-24 h-24 rounded-full mb-4"
@@ -128,7 +150,7 @@ export default function ProfileScreen() {
                 />
               </View>
               <Text className="text-gray-200 text-xs font-medium">
-                {likedSongs ? `${likedSongs.length} songs` : "0"}
+                {likedSongsCount} songs
               </Text>
             </BlurView>
           </TouchableOpacity>

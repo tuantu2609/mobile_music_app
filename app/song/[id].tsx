@@ -13,8 +13,10 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import SongListCard from "@/components/SongListCard";
 import SongCard from "@/components/SongCard";
+import { useAuth } from "@/app/auth/useAuth";
 
 import { usePlayerStore } from "@/store/usePlayerStore";
+import { likeSong, unlikeSong, getTotalLikesOfSong } from "@/services/useAuth";
 import axios from "axios";
 import Constants from "expo-constants";
 
@@ -23,22 +25,39 @@ const API_URL = Constants.expoConfig?.extra?.API_URL;
 const SongDetails = () => {
   const { id } = useLocalSearchParams();
   const router = useRouter();
-  const { setQueue, queue } = usePlayerStore(); // <-- lấy luôn queue ra nè
-
+  const { setQueue, queue } = usePlayerStore();
+  const { loadToken } = useAuth();
+  const [likes, setLikes] = useState<number>(0);
+  const [isLiked, setIsLiked] = useState<boolean>(false);
   const [song, setSong] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchSong = async () => {
       try {
-        const res = await axios.get(`${API_URL}/songs/${id}`);
+        const token = await loadToken();
+        if (!token) {
+          console.error("Không tìm thấy token!");
+          return;
+        }
+
+            // // Fetch danh sách bài tiếp theo
+            // const nextRes = await axios.get(`${API_URL}/songs/${id}/next`);
+            // setQueue(nextRes.data);
+
+        const res = await axios.get(`${API_URL}/songs/${id}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
         setSong(res.data);
 
-        // Fetch danh sách bài tiếp theo
-        const nextRes = await axios.get(`${API_URL}/songs/${id}/next`);
-        setQueue(nextRes.data);
+        const likeRes = await getTotalLikesOfSong(id, token);
+        setLikes(likeRes.likeCount);
+
+        setIsLiked(res.data.isLiked); // Backend gửi isLiked
       } catch (error) {
-        console.error("Error fetching song:", error);
+        console.error("Lỗi khi lấy thông tin bài hát:", error);
       } finally {
         setLoading(false);
       }
@@ -46,6 +65,30 @@ const SongDetails = () => {
 
     fetchSong();
   }, [id]);
+
+  const handleLike = async () => {
+    try {
+      const token = await loadToken();
+      if (!token) {
+        console.error("Không tìm thấy token!");
+        return;
+      }
+
+      // Gọi API like/unlike
+      if (isLiked) {
+        await unlikeSong(song.id, token);
+      } else {
+        await likeSong(song.id, token);
+      }
+
+      // Cập nhật lại trạng thái sau khi gọi API thành công
+      const likeRes = await getTotalLikesOfSong(song.id, token);
+      setLikes(likeRes.likeCount);
+      setIsLiked(!isLiked); // Toggle trạng thái sau khi cập nhật thành công
+    } catch (error) {
+      console.error("Error liking/unliking song:", error);
+    }
+  };
 
   if (loading) {
     return (
@@ -80,8 +123,8 @@ const SongDetails = () => {
         </TouchableOpacity>
         <TouchableOpacity className="top-4 right-4 z-50 bg-black/60 p-3 rounded-full">
           <Image
-            source={icons.more}
-            className="w-5 h-5"
+            source={icons.download}
+            className="w-6 h-6"
             tintColor="white"
             resizeMode="contain"
           />
@@ -104,11 +147,25 @@ const SongDetails = () => {
         </TouchableOpacity>
 
         {/* Song info */}
-        <View className="mb-6">
-          <Text className="text-white text-xl font-bold">{song.title}</Text>
-          <Text className="text-white/70 text-sm mt-1">
-            {song.Artists?.map((a: any) => a.name).join(", ")}
-          </Text>
+        <View className="mb-6 flex-row justify-between items-center">
+          <View>
+            <Text className="text-white text-xl font-bold">{song.title}</Text>
+            <Text className="text-white/70 text-sm mt-1">
+              {song.Artists?.map((a: any) => a.name).join(", ")}
+            </Text>
+          </View>
+
+          <TouchableOpacity
+            onPress={handleLike}
+            className="flex-row items-center ml-auto"
+          >
+            <Text className="text-white mr-2 text-sm">{likes}</Text>
+            <Image
+              source={isLiked ? icons.heart_fill : icons.heart}
+              className="w-6 h-6"
+              tintColor="white"
+            />
+          </TouchableOpacity>
         </View>
 
         {/* Player controls */}
@@ -144,6 +201,7 @@ const SongDetails = () => {
           <TouchableOpacity>
             <Image source={icons.next} className="w-6 h-6" tintColor="white" />
           </TouchableOpacity>
+
           <TouchableOpacity>
             <Image
               source={icons.repeat}
