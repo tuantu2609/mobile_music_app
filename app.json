@@ -47,7 +47,7 @@
       "typedRoutes": true
     },
     "extra": {
-      "API_URL": "http://192.168.11.194:3001", 
+      "API_URL": "http://192.168.1.98:3001", 
       "router": {
         "origin": false
       },

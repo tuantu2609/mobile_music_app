@@ -62,6 +62,7 @@ export default function Index() {
       subtitle: song.Artists?.[0]?.name ?? "Unknown Artist",
       image: song.album_cover,
       url: song.url,
+      duration_ms: song.duration_ms,
     });
 
     // Gửi API ghi lịch sử phát

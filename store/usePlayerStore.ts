@@ -6,6 +6,7 @@ interface Song {
   subtitle?: string;
   image: string;
   url: string;
+  duration_ms: number;
 }
 
 interface PlayerState {
