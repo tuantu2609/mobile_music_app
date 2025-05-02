@@ -4,6 +4,7 @@ import * as SecureStore from "expo-secure-store";
 import axios from "axios";
 import { loginUser } from "@/services/useAuth";
 import Constants from "expo-constants"; // 🔥 import Constants để lấy API_URL động
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const API_URL = Constants.expoConfig?.extra?.API_URL;
 const BASE_URL = `${API_URL}/api/users`;
@@ -40,10 +41,13 @@ export function useAuth() {
     try {
       const res = await loginUser({ email, password });
       const { token, user } = res.data;
-
+  
       await saveToken(token);
       setUser(user);
-
+  
+      // ✅ Thêm dòng sau để lưu userId vào cache
+      await AsyncStorage.setItem("local_user_id", user.id);
+  
       return { success: true };
     } catch (err: any) {
       console.error("Login error:", err?.response?.data || err.message);

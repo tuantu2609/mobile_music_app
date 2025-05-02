@@ -29,7 +29,7 @@ import hide from "@/assets/icons/hide.png";
 import pause from "@/assets/icons/pause.png";
 import edit from "@/assets/icons/edit.png";
 import remove from "@/assets/icons/remove.png";
-
+import downloaded from "@/assets/icons/downloaded.png";
 
 export const icons = {
   home,
@@ -63,4 +63,5 @@ export const icons = {
   pause,
   edit,
   remove,
+  downloaded,
 };
