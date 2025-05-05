@@ -1,8 +1,7 @@
-import { Link } from "expo-router";
+import { useRouter } from "expo-router";
 import { Text, View, Image, ScrollView, TouchableOpacity } from "react-native";
 import { images } from "@/constants/images";
 import { icons } from "@/constants/icons";
-import { useRouter } from "expo-router";
 import { useState } from "react";
 import SongCard from "@/components/SongCard";
 import MixCard from "@/components/MixCard";
@@ -12,21 +11,21 @@ import RecommendationCard from "@/components/RecommendationCard";
 import BannerCard from "@/components/BannerCard";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { usePlayerStore } from "@/store/usePlayerStore";
-import axios from "axios";
-
-import { useAuth } from "@/app/auth/useAuth";
-import Constants from "expo-constants";
-const API_URL = Constants.expoConfig?.extra?.API_URL;
-
 // lấy danh sách bài hát từ API
-import useSongList from "@/services/useSongList";
-import { Song } from "@/services/useSongList";
+import useSongList, { Song } from "@/services/useSongList";
 
 // lấy danh sách bài hát mới từ API
 import useNewReleases from "@/services/useNewReleases";
 
 // lấy danh sách playlists từ API
-import usePlaylistList, { Playlist } from "@/services/usePlaylistList";
+import usePlaylistList from "@/services/usePlaylistList";
+
+// lấy danh sách album từ API
+import useAlbumList from "@/services/useAlbumList";
+
+import { useAuth } from "@/app/auth/useAuth";
+import Constants from "expo-constants";
+const API_URL = Constants.expoConfig?.extra?.API_URL;
 
 export default function Index() {
   const router = useRouter();
@@ -49,6 +48,12 @@ export default function Index() {
     error: errorPlaylists,
   } = usePlaylistList(10);
 
+  const {
+    data: albums,
+    loading: loadingAlbums,
+    error: errorAlbums,
+  } = useAlbumList();
+
   const handleSongPress = async (song: Song) => {
     if (!user) {
       console.log("Chưa đăng nhập");
@@ -56,7 +61,7 @@ export default function Index() {
     }
 
     // Cập nhật bài hát đang phát
-    usePlayerStore.getState().setCurrentSong({
+    await usePlayerStore.getState().loadSong({
       id: song.id,
       title: song.title,
       subtitle: song.Artists?.[0]?.name ?? "Unknown Artist",
@@ -197,14 +202,13 @@ export default function Index() {
                 <Text className="text-white text-3xl font-bold">
                   Recently Played
                 </Text>
-                <Text
-                  className="text-gray-400 text-base text-xl"
-                  onPress={() => {
-                    console.log("See more pressed");
-                  }}
+                <TouchableOpacity
+                  onPress={() => router.push("/recently-played")}
                 >
-                  See more
-                </Text>
+                  <Text className="text-gray-400 text-base text-xl">
+                    See more
+                  </Text>
+                </TouchableOpacity>
               </View>
               {loading ? (
                 <Text className="text-white">Đang tải...</Text>
@@ -279,51 +283,40 @@ export default function Index() {
               <Text className="text-white text-3xl font-bold mb-5">
                 For Artists You Follow
               </Text>
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={{ paddingRight: 20 }}
-              >
-                <AlbumCard
-                  album={{
-                    name: "Bật Nó Lên",
-                    images: [
-                      {
-                        url: "https://product.hstatic.net/1000304920/product/soobin_batnolen_430f2bf37eb44a37a8349b645081e221_master.jpg",
-                        width: 640,
-                        height: 640,
-                      },
-                    ],
-                  }}
-                  artist={{ name: "Artist 1" }}
-                />
-                <AlbumCard
-                  album={{
-                    name: "Nắng Hoa Niên",
-                    images: [
-                      {
-                        url: "https://product.hstatic.net/1000304920/product/vuong_binh-anh_bo_vai-full_album_bc551e2e0ffe41b08c3ee2feb81aaa3e.jpg",
-                        width: 640,
-                        height: 640,
-                      },
-                    ],
-                  }}
-                  artist={{ name: "Artist 2" }}
-                />
-                <AlbumCard
-                  album={{
-                    name: "Album 3",
-                    images: [
-                      {
-                        url: "https://i.scdn.co/image/ab67616d0000b273794744c57c9f35db88249842",
-                        width: 640,
-                        height: 640,
-                      },
-                    ],
-                  }}
-                  artist={{ name: "Artist 3" }}
-                />
-              </ScrollView>
+              {loadingAlbums ? (
+                <Text className="text-white">Đang tải album...</Text>
+              ) : errorAlbums ? (
+                <Text className="text-red-400">{errorAlbums.message}</Text>
+              ) : (
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={{ paddingRight: 20 }}
+                >
+                  {albums?.map((album) => (
+                    <TouchableOpacity
+                      key={album.id}
+                      onPress={() => router.push(`/album/${album.id}`)}
+                    >
+                      <AlbumCard
+                        album={{
+                          name: album.name,
+                          images: [
+                            {
+                              url: album.album_cover,
+                              width: 640,
+                              height: 640,
+                            },
+                          ],
+                        }}
+                        artist={{
+                          name: album.Artists?.[0]?.name ?? "Unknown Artist",
+                        }}
+                      />
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
+              )}
             </View>
 
             {/* New Releases */}
