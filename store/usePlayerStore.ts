@@ -100,7 +100,7 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
   loadSong: async (song: Song) => {
     const fixedSong = {
       ...song,
-      image: song.image || (song as any).album_cover || "", // fix here!
+      image: song.image || (song as any).album_cover || "",
     };
 
     if (soundRef) {
