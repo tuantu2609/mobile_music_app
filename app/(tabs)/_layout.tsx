@@ -5,6 +5,10 @@ import { icons } from "@/constants/icons";
 import { BlurView } from "expo-blur";
 import MiniPlayer from "@/components/MiniPlayer";
 
+// React Query setup
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+const queryClient = new QueryClient();
+
 const TabIcon = ({
   focused,
   icon,
@@ -34,76 +38,76 @@ const TabIcon = ({
   );
 };
 
-const _layout = () => {
+export default function RootLayout() {
   return (
-    <View className="flex-1">
-      <Tabs
-        screenOptions={{
-          tabBarShowLabel: false,
-          tabBarItemStyle: {
-            flex: 1,
-            justifyContent: "center",
-            alignItems: "center",
-          },
-          tabBarStyle: {
-            backgroundColor: "transparent",
-            height: 72,
-            position: "absolute",
-            overflow: "hidden",
-            borderTopWidth: 0.5,
-            borderColor: "rgba(255,255,255,0.1)",
-          },
-          tabBarBackground: () =>
-            Platform.OS === "ios" ? (
-              <BlurView intensity={30} tint="dark" style={{ flex: 1 }} />
-            ) : (
-              <View style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.6)" }} />
-            ),
-        }}
-      >
-        <Tabs.Screen
-          name="index"
-          options={{
-            title: "Home",
-            headerShown: false,
-            tabBarIcon: ({ focused }) => (
-              <TabIcon focused={focused} icon={icons.home} title="Home" />
-            ),
+    <QueryClientProvider client={queryClient}>
+      <View className="flex-1">
+        <Tabs
+          screenOptions={{
+            tabBarShowLabel: false,
+            tabBarItemStyle: {
+              flex: 1,
+              justifyContent: "center",
+              alignItems: "center",
+            },
+            tabBarStyle: {
+              backgroundColor: "transparent",
+              height: 72,
+              position: "absolute",
+              overflow: "hidden",
+              borderTopWidth: 0.5,
+              borderColor: "rgba(255,255,255,0.1)",
+            },
+            tabBarBackground: () =>
+              Platform.OS === "ios" ? (
+                <BlurView intensity={30} tint="dark" style={{ flex: 1 }} />
+              ) : (
+                <View style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.6)" }} />
+              ),
           }}
-        />
-        <Tabs.Screen
-          name="search"
-          options={{
-            title: "Search",
-            headerShown: false,
-            tabBarIcon: ({ focused }) => (
-              <TabIcon
-                focused={focused}
-                icon={icons.search}
-                activeIcon={icons.searched}
-                title="Search"
-              />
-            ),
-          }}
-        />
-        <Tabs.Screen
-          name="library"
-          options={{
-            title: "Library",
-            headerShown: false,
-            tabBarIcon: ({ focused }) => (
-              <TabIcon
-                focused={focused}
-                icon={icons.library}
-                title="My Library"
-              />
-            ),
-          }}
-        />
-      </Tabs>
-      <MiniPlayer />
-    </View>
+        >
+          <Tabs.Screen
+            name="index"
+            options={{
+              title: "Home",
+              headerShown: false,
+              tabBarIcon: ({ focused }) => (
+                <TabIcon focused={focused} icon={icons.home} title="Home" />
+              ),
+            }}
+          />
+          <Tabs.Screen
+            name="search"
+            options={{
+              title: "Search",
+              headerShown: false,
+              tabBarIcon: ({ focused }) => (
+                <TabIcon
+                  focused={focused}
+                  icon={icons.search}
+                  activeIcon={icons.searched}
+                  title="Search"
+                />
+              ),
+            }}
+          />
+          <Tabs.Screen
+            name="library"
+            options={{
+              title: "Library",
+              headerShown: false,
+              tabBarIcon: ({ focused }) => (
+                <TabIcon
+                  focused={focused}
+                  icon={icons.library}
+                  title="My Library"
+                />
+              ),
+            }}
+          />
+        </Tabs>
+        <MiniPlayer />
+      </View>
+    </QueryClientProvider>
   );
-};
-
-export default _layout;
+}

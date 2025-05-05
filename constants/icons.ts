@@ -27,6 +27,9 @@ import artist from "@/assets/icons/artist.png";
 import view from "@/assets/icons/view.png";
 import hide from "@/assets/icons/hide.png";
 import pause from "@/assets/icons/pause.png";
+import edit from "@/assets/icons/edit.png";
+import remove from "@/assets/icons/remove.png";
+import downloaded from "@/assets/icons/downloaded.png";
 
 export const icons = {
   home,
@@ -58,4 +61,7 @@ export const icons = {
   view,
   hide,
   pause,
+  edit,
+  remove,
+  downloaded,
 };

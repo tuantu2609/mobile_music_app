@@ -1,10 +1,19 @@
-import axios from "axios";
-import useFetch from "./useFetch";
-import { Song } from "./useSongList";
+import { useQuery } from "@tanstack/react-query";
+import { getUserLikedSongs } from "./useAuth";
+import { useAuth } from "@/app/auth/useAuth";
 
-const API_URL = "http://192.168.1.4:3001/api/users/liked-songs";
+export default function useLikedSongs(userId: string | undefined) {
+  const { loadToken } = useAuth();
 
-const useLikedSongs = () =>
-  useFetch<Song[]>(() => axios.get(API_URL, { withCredentials: true }).then((res) => res.data));
-
-export default useLikedSongs;
+  return useQuery({
+    enabled: !!userId,
+    queryKey: ["likedSongs", userId],
+    queryFn: async () => {
+      const token = await loadToken();
+      if (token && userId) {
+        return await getUserLikedSongs(userId, token);
+      }
+      return [];
+    },
+  });
+}
