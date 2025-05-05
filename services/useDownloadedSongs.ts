@@ -14,7 +14,7 @@ export default function useDownloadedSongs(userId: string | undefined) {
       const id = userId || (await AsyncStorage.getItem("local_user_id"));
       const token = await loadToken();
 
-      // 🔒 Bảo vệ thêm nếu token không khớp user
+      // Bảo vệ thêm nếu token không khớp user
       if (!token || !id || user?.id !== id) {
         throw new Error("Token mismatch or missing user");
       }

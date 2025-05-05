@@ -29,6 +29,7 @@ export type Song = {
   Artists: { id: string; name: string }[];
   Album?: { id: string; name: string; release_date: string };
   url: string;
+  duration_ms: number;
 };
 
 const API_URL = Constants.expoConfig?.extra?.API_URL;

@@ -8,13 +8,12 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
-import useNewReleases from "@/services/useNewReleases";
+import useSongList from "@/services/useSongList";
 import { usePlayerStore } from "@/store/usePlayerStore";
-
 import { icons } from "@/constants/icons";
 
-export default function NewReleasesScreen() {
-  const { data: newReleases, loading, error } = useNewReleases();
+export default function RecentlyPlayedScreen() {
+  const { data: songs, loading, error } = useSongList();
   const router = useRouter();
 
   if (loading) {
@@ -45,12 +44,12 @@ export default function NewReleasesScreen() {
             tintColor="#ffffff"
           />
         </TouchableOpacity>
-        <Text className="text-white text-3xl font-bold">New Releases</Text>
+        <Text className="text-white text-3xl font-bold">Recently Played</Text>
       </View>
 
-      {/* Danh sách bài hát */}
+      {/* Song list */}
       <ScrollView showsVerticalScrollIndicator={false}>
-        {newReleases?.map((song) => (
+        {songs?.map((song) => (
           <TouchableOpacity
             key={song.id}
             className="flex-row items-center mb-5"
@@ -66,14 +65,11 @@ export default function NewReleasesScreen() {
               router.back();
             }}
           >
-            {/* Ảnh */}
             <Image
               source={{ uri: song.album_cover }}
               className="w-16 h-16 rounded-lg mr-4"
               resizeMode="cover"
             />
-
-            {/* Tên bài hát + nghệ sĩ */}
             <View className="flex-1">
               <Text
                 className="text-white text-lg font-semibold"
