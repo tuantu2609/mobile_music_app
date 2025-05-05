@@ -2,11 +2,11 @@ import {
   View,
   Text,
   Image,
-  FlatList,
+  // FlatList,
   TouchableOpacity,
   ScrollView,
   ActivityIndicator,
-  Dimensions,
+  // Dimensions,
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -18,13 +18,12 @@ import Constants from "expo-constants";
 
 const API_URL = Constants.expoConfig?.extra?.API_URL;
 
-const screenWidth = Dimensions.get("window").width;
+// const screenWidth = Dimensions.get("window").width;
 
 const AlbumDetails = () => {
   const { id } = useLocalSearchParams();
-  console.log("🚀 Album ID đang fetch là:", id);
   const router = useRouter();
-  const width = screenWidth * 0.25;
+  // const width = screenWidth * 0.25;
 
   const [album, setAlbum] = useState<any>(null);
   const [loading, setLoading] = useState(true);

@@ -10,55 +10,84 @@ import React, { useEffect, useState } from "react";
 import { icons } from "@/constants/icons";
 import { images } from "@/constants/images";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useRouter, useLocalSearchParams } from "expo-router";
+import {
+  useRouter,
+  // useLocalSearchParams
+} from "expo-router";
 import SongListCard from "@/components/SongListCard";
 import SongCard from "@/components/SongCard";
-
 import { usePlayerStore } from "@/store/usePlayerStore";
 import axios from "axios";
 import Constants from "expo-constants";
+import Slider from "@react-native-community/slider";
 
 const API_URL = Constants.expoConfig?.extra?.API_URL;
 
 const SongDetails = () => {
-  const { id } = useLocalSearchParams();
+  // const { id } = useLocalSearchParams();
   const router = useRouter();
-  const { setQueue, queue } = usePlayerStore(); // <-- lấy luôn queue ra nè
+  const {
+    currentSong,
+    setQueue,
+    queue,
+    isPlaying,
+    position,
+    duration,
+    playPause,
+    seekTo,
+    playNext,
+    playPrevious,
+  } = usePlayerStore();
 
-  const [song, setSong] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchSong = async () => {
-      try {
-        const res = await axios.get(`${API_URL}/songs/${id}`);
-        setSong(res.data);
+    const fetchQueue = async () => {
+      if (!currentSong?.id) return;
 
-        // Fetch danh sách bài tiếp theo
-        const nextRes = await axios.get(`${API_URL}/songs/${id}/next`);
-        setQueue(nextRes.data);
-      } catch (error) {
-        console.error("Error fetching song:", error);
+      setLoading(true);
+      try {
+        // Nếu muốn loại luôn current song khỏi queue ban đầu
+        const exclude = currentSong.id;
+
+        const { data } = await axios.get(
+          `${API_URL}/songs/${currentSong.id}/next?limit=5&exclude=${exclude}`
+        );
+
+        setQueue(data);
+      } catch (err) {
+        console.error("Failed to fetch next queue:", err);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchSong();
-  }, [id]);
+    fetchQueue();
+  }, [currentSong?.id, setQueue]);
 
-  if (loading) {
+  // useEffect(() => {
+  //   const fetchQueue = async () => {
+  //     if (!currentSong?.id) return;
+  //     setLoading(true);
+  //     try {
+  //       const nextRes = await axios.get(
+  //         `${API_URL}/songs/${currentSong.id}/next`
+  //       );
+  //       setQueue(nextRes.data);
+  //     } catch (error) {
+  //       console.error("Error fetching next songs:", error);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
+
+  //   fetchQueue();
+  // }, [currentSong?.id, setQueue]);
+
+  if (loading || !currentSong) {
     return (
       <SafeAreaView className="flex-1 justify-center items-center bg-black">
         <ActivityIndicator size="large" color="#fff" />
-      </SafeAreaView>
-    );
-  }
-
-  if (!song) {
-    return (
-      <SafeAreaView className="flex-1 justify-center items-center bg-black">
-        <Text className="text-white">Không tìm thấy bài hát.</Text>
       </SafeAreaView>
     );
   }
@@ -71,20 +100,10 @@ const SongDetails = () => {
           onPress={() => router.back()}
           className="top-4 left-4 z-50 bg-black/60 p-3 rounded-full"
         >
-          <Image
-            source={icons.back}
-            className="w-5 h-5"
-            tintColor="white"
-            resizeMode="contain"
-          />
+          <Image source={icons.back} className="w-5 h-5" tintColor="white" />
         </TouchableOpacity>
         <TouchableOpacity className="top-4 right-4 z-50 bg-black/60 p-3 rounded-full">
-          <Image
-            source={icons.more}
-            className="w-5 h-5"
-            tintColor="white"
-            resizeMode="contain"
-          />
+          <Image source={icons.more} className="w-5 h-5" tintColor="white" />
         </TouchableOpacity>
       </View>
 
@@ -92,7 +111,8 @@ const SongDetails = () => {
         {/* Album cover */}
         <View className="items-center mb-4">
           <Image
-            source={{ uri: song.album_cover }}
+            key={currentSong.id}
+            source={{ uri: currentSong.image }}
             className="w-72 h-72 rounded-2xl"
             resizeMode="cover"
           />
@@ -105,25 +125,36 @@ const SongDetails = () => {
 
         {/* Song info */}
         <View className="mb-6">
-          <Text className="text-white text-xl font-bold">{song.title}</Text>
+          <Text className="text-white text-xl font-bold">
+            {currentSong.title}
+          </Text>
           <Text className="text-white/70 text-sm mt-1">
-            {song.Artists?.map((a: any) => a.name).join(", ")}
+            {currentSong.subtitle}
           </Text>
         </View>
 
         {/* Player controls */}
         <View className="mb-4">
           <View className="flex-row justify-between">
-            <Text className="text-white text-xs">0:00</Text>
             <Text className="text-white text-xs">
-              {song.duration_ms
-                ? (song.duration_ms / 60000).toFixed(2)
-                : "3:00"}
+              {Math.floor(position / 60)}:
+              {("0" + Math.floor(position % 60)).slice(-2)}
+            </Text>
+            <Text className="text-white text-xs">
+              {Math.floor(duration / 60)}:
+              {("0" + Math.floor(duration % 60)).slice(-2)}
             </Text>
           </View>
-          <View className="w-full h-1 bg-white/20 rounded-full mt-2">
-            <View className="w-[20%] h-full bg-white rounded-full" />
-          </View>
+          <Slider
+            style={{ width: "100%", height: 40 }}
+            minimumValue={0}
+            maximumValue={duration}
+            value={position}
+            minimumTrackTintColor="#ffffff"
+            maximumTrackTintColor="#555"
+            thumbTintColor="#fff"
+            onSlidingComplete={(value) => seekTo(value)}
+          />
         </View>
 
         {/* Buttons */}
@@ -135,13 +166,20 @@ const SongDetails = () => {
               tintColor="white"
             />
           </TouchableOpacity>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={playPrevious}>
             <Image source={icons.prev} className="w-6 h-6" tintColor="white" />
           </TouchableOpacity>
-          <TouchableOpacity className="bg-white rounded-full p-4">
-            <Image source={icons.play} className="w-6 h-6" tintColor="black" />
+          <TouchableOpacity
+            className="bg-white rounded-full p-4"
+            onPress={playPause}
+          >
+            <Image
+              source={isPlaying ? icons.pause : icons.play}
+              className="w-6 h-6"
+              tintColor="black"
+            />
           </TouchableOpacity>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={playNext}>
             <Image source={icons.next} className="w-6 h-6" tintColor="white" />
           </TouchableOpacity>
           <TouchableOpacity>

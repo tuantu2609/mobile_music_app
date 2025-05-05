@@ -8,7 +8,7 @@ export default function IndexScreen() {
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      router.replace("auth/login"); // hoặc sang tabs nếu có token
+      router.replace("auth/login");
     }, 10);
     return () => clearTimeout(timer);
   }, []);

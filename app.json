@@ -47,9 +47,12 @@
       "typedRoutes": true
     },
     "extra": {
-      "API_URL": "http://192.168.1.4:3001", 
+      "API_URL": "http://10.45.172.114:3001", 
       "router": {
         "origin": false
+      },
+      "eas": {
+        "projectId": "8b91493e-d078-45b6-80b4-afc00d46ae10"
       }
     }
   }
