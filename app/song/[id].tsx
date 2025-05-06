@@ -13,11 +13,12 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import SongListCard from "@/components/SongListCard";
 import SongCard from "@/components/SongCard";
-import { useAuth } from "@/app/auth/useAuth";
+// import { useAuth } from "@/app/auth/useAuth";
 import { usePlayerStore } from "@/store/usePlayerStore";
 import { likeSong, unlikeSong, getTotalLikesOfSong } from "@/services/useAuth";
 import axios from "axios";
 import Constants from "expo-constants";
+import { useAuthStore } from "@/store/useAuthStore";
 
 import {
   isSongDownloaded,
@@ -25,24 +26,23 @@ import {
   deleteDownloadedSong,
   getLocalSongPath,
 } from "@/services/useDownloadedManager";
-import useAudioPlayer from "@/services/useAudioPlayer";
 import Slider from "@react-native-community/slider";
 
 const API_URL = Constants.expoConfig?.extra?.API_URL;
 
-const formatDuration = (ms: number) => {
-  const totalSeconds = Math.floor(ms / 1000);
-  const minutes = Math.floor(totalSeconds / 60);
-  const seconds = totalSeconds % 60;
-  return `${minutes}:${seconds.toString().padStart(2, "0")}`;
-};
+// const formatDuration = (ms: number) => {
+//   const totalSeconds = Math.floor(ms / 1000);
+//   const minutes = Math.floor(totalSeconds / 60);
+//   const seconds = totalSeconds % 60;
+//   return `${minutes}:${seconds.toString().padStart(2, "0")}`;
+// };
 
 const SongDetails = () => {
   const { fromDownloadedPage } = useLocalSearchParams();
   const { song: songParam } = useLocalSearchParams();
   const song = Array.isArray(songParam) ? songParam[0] : songParam;
-  const { user, loadToken } = useAuth();
-  const { play, unload } = useAudioPlayer();
+  // const { user, loadToken } = useAuth();
+  const { token, user } = useAuthStore();
 
   const [likes, setLikes] = useState(0);
   const [isLiked, setIsLiked] = useState(false);
@@ -93,7 +93,6 @@ const SongDetails = () => {
       if (!user) return;
 
       try {
-        const token = await loadToken();
         if (!token || !user?.id) throw new Error("Thiếu token hoặc user");
 
         const isDown = await isSongDownloaded(id, user.id, token);
@@ -115,10 +114,6 @@ const SongDetails = () => {
     };
 
     loadSong();
-
-    return () => {
-      unload();
-    };
   }, [id, user]);
 
   useEffect(() => {
@@ -131,7 +126,12 @@ const SongDetails = () => {
         const exclude = currentSong.id;
 
         const { data } = await axios.get(
-          `${API_URL}/songs/${currentSong.id}/next?limit=5&exclude=${exclude}`
+          `${API_URL}/songs/${currentSong.id}/next?limit=5&exclude=${exclude}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
         );
 
         setQueue(data);
@@ -147,7 +147,6 @@ const SongDetails = () => {
 
   const handleLike = async () => {
     try {
-      const token = await loadToken();
       if (!token) return;
       if (isLiked) await unlikeSong(id, token);
       else await likeSong(id, token);
@@ -162,7 +161,6 @@ const SongDetails = () => {
 
   const handleDownload = async () => {
     try {
-      const token = await loadToken();
       if (!token || !user?.id || !currentSong?.url) return;
 
       if (downloaded) {

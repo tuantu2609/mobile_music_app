@@ -5,19 +5,20 @@ import axios from "axios";
 import { loginUser } from "@/services/useAuth";
 import Constants from "expo-constants"; // 🔥 import Constants để lấy API_URL động
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useAuthStore } from "@/store/useAuthStore";
 
 const API_URL = Constants.expoConfig?.extra?.API_URL;
 const BASE_URL = `${API_URL}/api/users`;
 
 export function useAuth() {
-  const [user, setUser] = useState<any>(null);
-  const [token, setToken] = useState<string | null>(null);
+  // const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(false);
+  const { token, user, setToken, setUser } = useAuthStore();
 
   // Lưu token vào SecureStore
-  const saveToken = async (token: string) => {
-    await SecureStore.setItemAsync("token", token);
-    setToken(token);
+  const saveToken = async (newToken: string) => {
+    await SecureStore.setItemAsync("token", newToken);
+    setToken(newToken);
   };
 
   // Xóa token
@@ -28,6 +29,7 @@ export function useAuth() {
 
   // Lấy token
   const loadToken = async () => {
+    if (token) return token;
     const storedToken = await SecureStore.getItemAsync("token");
     if (storedToken) {
       setToken(storedToken);
@@ -41,17 +43,20 @@ export function useAuth() {
     try {
       const res = await loginUser({ email, password });
       const { token, user } = res.data;
-  
+
       await saveToken(token);
       setUser(user);
-  
+
       // ✅ Thêm dòng sau để lưu userId vào cache
       await AsyncStorage.setItem("local_user_id", user.id);
-  
+
       return { success: true };
     } catch (err: any) {
       console.error("Login error:", err?.response?.data || err.message);
-      return { success: false, message: err?.response?.data?.error || "Login failed" };
+      return {
+        success: false,
+        message: err?.response?.data?.error || "Login failed",
+      };
     } finally {
       setLoading(false);
     }
@@ -59,8 +64,8 @@ export function useAuth() {
 
   // Fetch Profile
   const fetchProfile = async () => {
-    const currentToken = token || await loadToken();
-    console.log("TOKEN HIỆN TẠI:", currentToken);
+    const currentToken = token || (await loadToken());
+    // console.log("TOKEN HIỆN TẠI:", currentToken);
 
     if (!currentToken) {
       console.log("Không có token, không fetch profile");
@@ -71,7 +76,7 @@ export function useAuth() {
       const res = await axios.get(`${BASE_URL}/profile`, {
         headers: { Authorization: `Bearer ${currentToken}` },
       });
-      console.log("PROFILE:", res.data);
+      // console.log("PROFILE:", res.data);
       setUser(res.data);
       return res.data;
     } catch (err: any) {
@@ -81,25 +86,29 @@ export function useAuth() {
   };
 
   // Refresh User
-  const refreshUser = async () => {
-    const currentToken = token || (await loadToken());
+  // const refreshUser = async () => {
+  //   const currentToken = token || (await loadToken());
 
-    if (!currentToken) {
-      console.log("Không có token, không thể làm mới profile");
-      return null;
-    }
+  //   if (!currentToken) {
+  //     console.log("Không có token, không thể làm mới profile");
+  //     return null;
+  //   }
 
-    try {
-      const res = await axios.get(`${BASE_URL}/profile`, {
-        headers: { Authorization: `Bearer ${currentToken}` },
-      });
-      setUser(res.data);
-      return res.data;
-    } catch (err: any) {
-      console.error("Lỗi khi làm mới profile:", err?.response?.data || err.message);
-      return null;
-    }
-  };
+  //   try {
+  //     const res = await axios.get(`${BASE_URL}/profile`, {
+  //       headers: { Authorization: `Bearer ${currentToken}` },
+  //     });
+  //     setUser(res.data);
+  //     return res.data;
+  //   } catch (err: any) {
+  //     console.error(
+  //       "Lỗi khi làm mới profile:",
+  //       err?.response?.data || err.message
+  //     );
+  //     return null;
+  //   }
+  // };
+  const refreshUser = fetchProfile;
 
   // Logout
   const logout = async () => {
