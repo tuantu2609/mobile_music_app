@@ -29,10 +29,12 @@ interface PlayerState {
   loadSong: (song: Song) => Promise<void>;
   playPause: () => Promise<void>;
   seekTo: (sec: number) => Promise<void>;
+  resetPlayer: () => void;
 }
 
 let soundRef: Audio.Sound | null = null;
 let intervalRef: number | null = null;
+let loadVersionRef = 0;
 
 export const usePlayerStore = create<PlayerState>((set, get) => ({
   currentSong: null,
@@ -98,9 +100,11 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
   },
 
   loadSong: async (song: Song) => {
+    const version = ++loadVersionRef;
+
     const fixedSong = {
       ...song,
-      image: song.image || (song as any).album_cover || "", // fix here!
+      image: song.image || (song as any).album_cover || "",
     };
 
     if (soundRef) {
@@ -124,6 +128,12 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
         { uri: fixedSong.url },
         { shouldPlay: true }
       );
+
+      if (version !== loadVersionRef) {
+        await sound.unloadAsync();
+        return;
+      }
+
       soundRef = sound;
       set({ isPlaying: true });
 
@@ -161,5 +171,31 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
       await soundRef.setPositionAsync(sec * 1000);
       set({ position: sec });
     }
+  },
+
+  resetPlayer: async () => {
+    if (soundRef) {
+      try {
+        await soundRef.stopAsync();
+        await soundRef.unloadAsync();
+      } catch (e) {
+        console.warn("Unload error on reset:", e);
+      }
+      soundRef = null;
+    }
+
+    if (intervalRef) {
+      clearInterval(intervalRef);
+      intervalRef = null;
+    }
+
+    set({
+      currentSong: null,
+      queue: [],
+      history: [],
+      isPlaying: false,
+      position: 0,
+      duration: 0,
+    });
   },
 }));

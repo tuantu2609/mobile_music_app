@@ -15,6 +15,7 @@ import SongListCard from "@/components/SongListCard";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import Constants from "expo-constants";
+import { useAuth } from "@/app/auth/useAuth";
 
 const API_URL = Constants.expoConfig?.extra?.API_URL;
 
@@ -23,6 +24,7 @@ const API_URL = Constants.expoConfig?.extra?.API_URL;
 const AlbumDetails = () => {
   const { id } = useLocalSearchParams();
   const router = useRouter();
+  const { loadToken } = useAuth();
   // const width = screenWidth * 0.25;
 
   const [album, setAlbum] = useState<any>(null);
@@ -31,7 +33,12 @@ const AlbumDetails = () => {
   useEffect(() => {
     const fetchAlbum = async () => {
       try {
-        const res = await axios.get(`${API_URL}/albums/${id}`);
+        const token = await loadToken();
+        const res = await axios.get(`${API_URL}/albums/${id}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
         setAlbum(res.data);
       } catch (error) {
         console.error("Error fetching album:", error);
@@ -41,7 +48,7 @@ const AlbumDetails = () => {
     };
 
     fetchAlbum();
-  }, [id]);
+  }, [id, loadToken]);
 
   if (loading) {
     return (

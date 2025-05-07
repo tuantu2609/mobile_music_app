@@ -23,7 +23,8 @@ import usePlaylistList from "@/services/usePlaylistList";
 // lấy danh sách album từ API
 import useAlbumList from "@/services/useAlbumList";
 
-import { useAuth } from "@/app/auth/useAuth";
+// import { useAuth } from "@/app/auth/useAuth";
+import { useAuthStore } from "@/store/useAuthStore";
 import Constants from "expo-constants";
 const API_URL = Constants.expoConfig?.extra?.API_URL;
 
@@ -32,7 +33,7 @@ export default function Index() {
   const [activeTab, setActiveTab] = useState("For you");
 
   const tabs = ["For you", "Relax", "Workout", "Travel"];
-  const { user } = useAuth();
+  const { user } = useAuthStore();
   // lấy bài hát
   const { data: songs, loading, error } = useSongList();
   // lấy bài hát mới

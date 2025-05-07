@@ -4,7 +4,6 @@ import Constants from "expo-constants";
 const API_URL = Constants.expoConfig?.extra?.API_URL;
 const BASE_URL = `${API_URL}/api/users`;
 
-
 // Đăng ký
 export const registerUser = async (data: {
   name: string;
@@ -29,10 +28,8 @@ export const verifyOtp = async (email: string, otp: string) => {
   return await axios.post(`${BASE_URL}/verify-otp`, { email, otp });
 };
 
-
 export const loginUser = async (data: { email: string; password: string }) => {
-
-// Đăng nhập
+  // Đăng nhập
 
   return await axios.post(`${BASE_URL}/login`, data);
 };
@@ -42,7 +39,11 @@ export const verifyResetOtp = async (email: string, otp: string) => {
 };
 
 // Đặt lại mật khẩu
-export const resetPassword = async (email: string, newPassword: string, otp: string) => {
+export const resetPassword = async (
+  email: string,
+  newPassword: string,
+  otp: string
+) => {
   return await axios.post(`${BASE_URL}/reset-password`, {
     email,
     newPassword,
@@ -123,7 +124,12 @@ export const getTotalLikesOfSong = async (songId: string, token: string) => {
 };
 
 // Lấy danh sách bài hát đã liked của người dùng
-export const getUserLikedSongs = async (userId: string, token: string, limit = 10, offset = 0) => {
+export const getUserLikedSongs = async (
+  userId: string,
+  token: string,
+  limit = 10,
+  offset = 0
+) => {
   try {
     const response = await axios.get(`${BASE_URL}/${userId}/liked-songs`, {
       headers: {

@@ -20,7 +20,8 @@
 import axios from "axios";
 import useFetch from "./useFetch";
 import Constants from "expo-constants";
-import { useAuth } from "@/app/auth/useAuth";
+// import { useAuth } from "@/app/auth/useAuth";
+import { useAuthStore } from "@/store/useAuthStore";
 
 export type Song = {
   id: string;
@@ -36,10 +37,9 @@ const API_URL = Constants.expoConfig?.extra?.API_URL;
 const BASE_URL = `${API_URL}/songs`;
 
 const useSongList = () => {
-  const { loadToken } = useAuth();
+  const { token } = useAuthStore();
 
   return useFetch<Song[]>(async () => {
-    const token = await loadToken();
     const response = await axios.get(BASE_URL, {
       headers: {
         Authorization: `Bearer ${token}`,

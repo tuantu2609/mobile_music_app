@@ -8,7 +8,7 @@ const MiniPlayer = () => {
   const router = useRouter();
   const { currentSong, isPlaying, position, duration, playPause } =
     usePlayerStore();
-
+  if (!currentSong) return null;
   return (
     <View style={{ position: "relative" }}>
       <TouchableOpacity

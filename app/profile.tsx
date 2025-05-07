@@ -13,6 +13,7 @@ import { images } from "@/constants/images";
 import { BlurView } from "expo-blur";
 import { useAuth } from "@/app/auth/useAuth";
 import { getUserLikedSongs } from "@/services/useAuth"; // ⬅️ API gọi liked songs
+import { usePlayerStore } from "@/store/usePlayerStore";
 
 import useLikedPlaylists from "@/services/useLikedPlaylists";
 import useFollowedArtists from "@/services/useFollowedArtists";
@@ -57,6 +58,7 @@ export default function ProfileScreen() {
   }, [user]);
 
   const handleLogout = async () => {
+    usePlayerStore.getState().resetPlayer();
     await logout();
     router.replace("/auth/login");
   };

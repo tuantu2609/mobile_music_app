@@ -1,8 +1,10 @@
-import { useEffect, useState } from "react";
 import axios from "axios";
+import useFetch from "./useFetch";
 import Constants from "expo-constants";
+import { useAuthStore } from "@/store/useAuthStore";
 
 const API_URL = Constants.expoConfig?.extra?.API_URL;
+const BASE_URL = `${API_URL}/albums`;
 
 export interface Album {
   id: string;
@@ -12,24 +14,14 @@ export interface Album {
 }
 
 export default function useAlbumList() {
-  const [data, setData] = useState<Album[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
+  const { token } = useAuthStore();
 
-  useEffect(() => {
-    const fetchAlbums = async () => {
-      try {
-        const res = await axios.get(`${API_URL}/albums`);
-        setData(res.data);
-      } catch (err) {
-        setError(err as Error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchAlbums();
-  }, []);
-
-  return { data, loading, error };
+  return useFetch<Album[]>(async () => {
+    const res = await axios.get(BASE_URL, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return res.data;
+  });
 }
