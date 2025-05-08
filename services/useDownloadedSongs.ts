@@ -14,23 +14,22 @@ export default function useDownloadedSongs(userId: string | undefined) {
       const id = userId || (await AsyncStorage.getItem("local_user_id"));
       const token = await loadToken();
 
+      // 🔒 Bảo vệ thêm nếu token không khớp user
       if (!token || !id || user?.id !== id) {
         throw new Error("Token mismatch or missing user");
       }
 
-      const { isConnected, isInternetReachable } = await NetInfo.fetch();
+      const { isConnected } = await NetInfo.fetch();
       const cacheKey = `cached_downloaded_songs_${id}`;
 
-      if (!isConnected || !isInternetReachable) {
-        // ✅ Offline: dùng cache
+      if (isConnected) {
+        const songs = await getDownloadedSongs(id, token);
+        await AsyncStorage.setItem(cacheKey, JSON.stringify(songs));
+        return songs;
+      } else {
         const cached = await AsyncStorage.getItem(cacheKey);
         return cached ? JSON.parse(cached) : [];
       }
-
-      // Online
-      const songs = await getDownloadedSongs(id, token);
-      await AsyncStorage.setItem(cacheKey, JSON.stringify(songs));
-      return songs;
     },
     staleTime: 1000 * 60 * 60,
     cacheTime: 1000 * 60 * 60 * 24,
