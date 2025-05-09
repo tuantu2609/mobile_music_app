@@ -201,11 +201,8 @@
 // }));
 
 import { create } from "zustand";
-import axios from "axios";
-import Constants from "expo-constants";
 import { Audio, AVPlaybackStatus } from "expo-av";
 
-const API_URL = Constants.expoConfig?.extra?.API_URL;
 
 interface Song {
   id: string;
@@ -250,47 +247,67 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
   setCurrentSong: (song) => set({ currentSong: song }),
   setQueue: (queue) => set({ queue }),
 
+  // playNext: async () => {
+  //   const { queue, currentSong, history, loadSong, setQueue } = get();
+  //   if (queue.length === 0) {
+  //     set({ isPlaying: false });
+  //     return;
+  //   }
+
+  //   const nextSong = queue[0];
+  //   set({
+  //     history: currentSong ? [...history, currentSong] : history,
+  //     queue: queue.slice(1),
+  //   });
+  //   setCurrentSong(nextSong);
+  //   await loadSong(nextSong);
+
+  //   try {
+  //     const excludeIds = [
+  //       currentSong?.id,
+  //       ...queue.slice(1).map((s) => s.id),
+  //       ...history.map((s) => s.id),
+  //     ]
+  //       .filter(Boolean)
+  //       .join(",");
+
+  //     const response = await axios.get(
+  //       `${API_URL}/songs/${nextSong.id}/next?limit=1&exclude=${excludeIds}`
+  //     );
+  //     const newSong = response.data[0];
+  //     const updatedQueue = [...queue.slice(1)];
+
+  //     if (newSong && !updatedQueue.some((s) => s.id === newSong.id)) {
+  //       updatedQueue.push(newSong);
+  //     }
+
+  //     setQueue(updatedQueue.slice(0, 5));
+  //   } catch (err) {
+  //     console.error("Error fetching new song for up next:", err);
+  //     setQueue(queue.slice(1));
+  //   }
+  // },
   playNext: async () => {
     const { queue, currentSong, history, loadSong, setQueue } = get();
+
     if (queue.length === 0) {
-      set({ isPlaying: false });
-      return;
+      console.log("No songs in the queue to play next.");
+      return; // Dừng lại nếu không có bài hát
     }
 
-    const nextSong = queue[0];
-    set({
-      history: currentSong ? [...history, currentSong] : history,
-      queue: queue.slice(1),
-    });
-    setCurrentSong(nextSong);
-    await loadSong(nextSong);
-
-    try {
-      const excludeIds = [
-        currentSong?.id,
-        ...queue.slice(1).map((s) => s.id),
-        ...history.map((s) => s.id),
-      ]
-        .filter(Boolean)
-        .join(",");
-
-      const response = await axios.get(
-        `${API_URL}/songs/${nextSong.id}/next?limit=1&exclude=${excludeIds}`
-      );
-      const newSong = response.data[0];
-      const updatedQueue = [...queue.slice(1)];
-
-      if (newSong && !updatedQueue.some((s) => s.id === newSong.id)) {
-        updatedQueue.push(newSong);
+    if (queue.length > 0) {
+      const [next, ...rest] = queue;
+      if (currentSong) {
+        set({ history: [...history, currentSong] });
       }
 
-      setQueue(updatedQueue.slice(0, 5));
-    } catch (err) {
-      console.error("Error fetching new song for up next:", err);
-      setQueue(queue.slice(1));
+      await loadSong(next); // Phát bài tiếp theo
+
+      setQueue(rest); // Cập nhật lại queue với bài hát còn lại
+    } else {
+      set({ isPlaying: false });
     }
   },
-
   playPrevious: async () => {
     const { history, loadSong, setCurrentSong } = get();
     if (history.length > 0) {
@@ -306,6 +323,59 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
     }
   },
 
+  // loadSong: async (song: Song) => {
+  //   const version = ++loadVersionRef;
+
+  //   const fixedSong = {
+  //     ...song,
+  //     image: song.image || (song as any).album_cover || "",
+  //   };
+
+  //   if (soundRef) {
+  //     try {
+  //       await soundRef.stopAsync();
+  //       await soundRef.unloadAsync();
+  //     } catch (e) {
+  //       console.warn("Unload error:", e);
+  //     }
+  //     soundRef = null;
+  //   }
+
+  //   set({ currentSong: fixedSong, position: 0 });
+
+  //   if (fixedSong.duration_ms) {
+  //     set({ duration: fixedSong.duration_ms / 1000 });
+  //   }
+
+  //   try {
+  //     const { sound } = await Audio.Sound.createAsync(
+  //       { uri: fixedSong.url ?? "" },
+  //       { shouldPlay: true }
+  //     );
+
+  //     if (version !== loadVersionRef) {
+  //       await sound.unloadAsync();
+  //       return;
+  //     }
+
+  //     soundRef = sound;
+  //     set({ isPlaying: true });
+
+  //     if (intervalRef) clearInterval(intervalRef);
+
+  //     intervalRef = setInterval(async () => {
+  //       const status = (await sound.getStatusAsync()) as AVPlaybackStatus;
+  //       if (status && "positionMillis" in status) {
+  //         set({ position: status.positionMillis / 1000 });
+  //         if (status.didJustFinish) {
+  //           await get().playNext();
+  //         }
+  //       }
+  //     }, 500);
+  //   } catch (e) {
+  //     console.warn("Load song error:", e);
+  //   }
+  // },
   loadSong: async (song: Song) => {
     const version = ++loadVersionRef;
 
@@ -332,7 +402,7 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
 
     try {
       const { sound } = await Audio.Sound.createAsync(
-        { uri: fixedSong.url ?? "" },
+        { uri: fixedSong.url },
         { shouldPlay: true }
       );
 
@@ -359,7 +429,6 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
       console.warn("Load song error:", e);
     }
   },
-
   playPause: async () => {
     const { isPlaying } = get();
     if (soundRef) {

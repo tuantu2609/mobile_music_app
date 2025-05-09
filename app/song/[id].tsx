@@ -371,7 +371,7 @@ import {
   ScrollView,
   ActivityIndicator,
 } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { icons } from "@/constants/icons";
 import { images } from "@/constants/images";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -402,7 +402,8 @@ const formatDuration = (ms: number) => {
 };
 
 const SongDetails = () => {
-  const { id, fromDownloadedPage, song: songParam } = useLocalSearchParams();
+  const {fromDownloadedPage, song: songParam } = useLocalSearchParams();
+  
   const router = useRouter();
   const { user, loadToken } = useAuth();
 
@@ -439,6 +440,7 @@ const SongDetails = () => {
   const [isOfflinePlaying, setIsOfflinePlaying] = useState(false);
   const [offlineDuration, setOfflineDuration] = useState(0);
   const [offlinePosition, setOfflinePosition] = useState(0);
+  const id = currentSong?.id ??"";
 
   useEffect(() => {
     const loadSong = async () => {
@@ -465,9 +467,17 @@ const SongDetails = () => {
         const isDown = await isSongDownloaded(id, user.id, token);
         setDownloaded(isDown);
 
-        const res = await axios.get(`${API_URL}/songs/${id}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        // const res = await axios.get(`${API_URL}/songs/${id}`, {
+        //   headers: { Authorization: `Bearer ${token}` },
+        // });
+        const exclude = id;
+        console.log("Authorization header:", `Bearer ${token}`);
+        const res = await axios.get(
+          `${API_URL}/songs/${id}/next?limit=5&exclude=${exclude}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
         setSong(res.data);
         setCurrentSong(res.data);
         play(res.data.preview_url); // start playing
@@ -490,11 +500,11 @@ const SongDetails = () => {
 
   useEffect(() => {
     const fetchQueue = async () => {
-      if (!song?.id || isOffline) return;
+      if (!id || isOffline) return;
       try {
         const token = await loadToken();
         const { data } = await axios.get(
-          `${API_URL}/songs/${song.id}/next?limit=5&exclude=${song.id}`,
+          `${API_URL}/songs/${song.id}/next?limit=5&exclude=${id}`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -506,7 +516,7 @@ const SongDetails = () => {
     };
 
     fetchQueue();
-  }, [song?.id]);
+  }, [id]);
 
   // Cập nhật vị trí nhạc offline theo thời gian
   useEffect(() => {
