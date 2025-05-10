@@ -6,7 +6,6 @@ export default function useAudioPlayer() {
 
   const play = async (uri: string) => {
     try {
-      // Unload cũ nếu có
       if (soundRef.current) {
         await soundRef.current.unloadAsync();
         soundRef.current = null;
@@ -16,17 +15,38 @@ export default function useAudioPlayer() {
         { uri },
         { shouldPlay: true }
       );
+
       console.log("🎶 Playing audio from URI:", uri);
       soundRef.current = sound;
 
       sound.setOnPlaybackStatusUpdate((status) => {
         if ((status as AVPlaybackStatusSuccess).isLoaded) {
-          // handle progress, etc.
+          // handle progress outside
         }
       });
-
     } catch (err) {
       console.error("🎧 Error playing sound:", err);
+    }
+  };
+
+  const pause = async () => {
+    if (soundRef.current) {
+      const status = await soundRef.current.getStatusAsync();
+      if ((status as AVPlaybackStatusSuccess).isPlaying) {
+        await soundRef.current.pauseAsync();
+      }
+    }
+  };
+
+  const resume = async () => {
+    if (soundRef.current) {
+      const status = await soundRef.current.getStatusAsync();
+      if (
+        (status as AVPlaybackStatusSuccess).isLoaded &&
+        !(status as AVPlaybackStatusSuccess).isPlaying
+      ) {
+        await soundRef.current.playAsync();
+      }
     }
   };
 
@@ -43,5 +63,27 @@ export default function useAudioPlayer() {
     }
   };
 
-  return { play, stop, unload };
+  const getStatus = async () => {
+    if (soundRef.current) {
+      return await soundRef.current.getStatusAsync();
+    }
+    return null;
+  };
+
+  const seekTo = async (seconds: number) => {
+    if (soundRef.current) {
+      await soundRef.current.setPositionAsync(seconds * 1000);
+    }
+  };
+
+  return {
+    play,
+    pause,
+    resume,
+    stop,
+    unload,
+    getStatus,
+    seekTo,
+    sound: soundRef.current,
+  };
 }
