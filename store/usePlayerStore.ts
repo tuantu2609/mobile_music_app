@@ -1,5 +1,9 @@
 import { create } from "zustand";
-import { Audio, AVPlaybackStatus } from "expo-av";
+import { Audio, AVPlaybackStatus,
+  InterruptionModeAndroid, //chạy nền
+  InterruptionModeIOS, // chạy nền
+  
+ } from "expo-av";
 
 import type { Song } from "@/interfaces/interfaces";
 import { useAuthStore } from "./useAuthStore";
@@ -43,6 +47,16 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
   setQueue: (queue) => set({ queue }),
 
   loadSong: async (song: Song) => {
+    //dùng cho chạy nền 
+    await Audio.setAudioModeAsync({
+      staysActiveInBackground: true,
+      playsInSilentModeIOS: true,
+      shouldDuckAndroid: true,
+      interruptionModeIOS: InterruptionModeIOS.DoNotMix,
+      interruptionModeAndroid: InterruptionModeAndroid.DoNotMix,
+    });
+    
+    
     const version = ++loadVersionRef;
     const uri = song.url;
 
