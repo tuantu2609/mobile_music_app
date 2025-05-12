@@ -1,24 +1,21 @@
-interface Song {
+export interface Song {
   id: string;
   title: string;
-  explicit: boolean;
   album_cover: string;
   artists: Pick<Artist, "id" | "name">[];
-  popularity: number;
-  preview_url?: string;
-  release_date: string;
-  is_playable: boolean;
+  url: string;
   duration_ms: number;
-  image?: ImageSourcePropType;
+  isLiked: boolean;
+  isDownloaded: boolean;
 }
 
-interface Image {
+export interface Image {
   url: string;
   height: number;
   width: number;
 }
 
-interface Artist {
+export interface Artist {
   id: string;
   name: string;
   genres: string[];
@@ -28,7 +25,7 @@ interface Artist {
   followers: number;
 }
 
-interface Album {
+export interface Album {
   id: string;
   name: string;
   release_date: string;
@@ -42,7 +39,7 @@ interface Album {
   external_url: string;
 }
 
-interface Playlist {
+export interface Playlist {
   id: string;
   name: string;
   images: Image[];
@@ -51,3 +48,6 @@ interface Playlist {
   total_tracks: number;
   external_url: string;
 }
+
+// 👇 Dòng này giúp TypeScript hiểu đây là một module
+export {};

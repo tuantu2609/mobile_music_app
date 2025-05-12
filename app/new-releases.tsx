@@ -11,6 +11,8 @@ import { useRouter } from "expo-router";
 import useNewReleases from "@/services/useNewReleases";
 import { usePlayerStore } from "@/store/usePlayerStore";
 
+import { Song } from "@/interfaces/interfaces";
+
 import { icons } from "@/constants/icons";
 
 export default function NewReleasesScreen() {
@@ -50,7 +52,7 @@ export default function NewReleasesScreen() {
 
       {/* Danh sách bài hát */}
       <ScrollView showsVerticalScrollIndicator={false}>
-        {newReleases?.map((song) => (
+        {newReleases?.map((song: Song) => (
           <TouchableOpacity
             key={song.id}
             className="flex-row items-center mb-5"
@@ -58,10 +60,12 @@ export default function NewReleasesScreen() {
               await usePlayerStore.getState().loadSong({
                 id: song.id,
                 title: song.title,
-                subtitle: song.Artists?.[0]?.name ?? "Unknown Artist",
-                image: song.album_cover,
+                artists: song.artists ?? [],
+                album_cover: song.album_cover,
                 url: song.url,
                 duration_ms: song.duration_ms,
+                isLiked: song.isLiked,
+                isDownloaded: song.isDownloaded,
               });
               router.back();
             }}
@@ -81,12 +85,12 @@ export default function NewReleasesScreen() {
               >
                 {song.title}
               </Text>
-              {song.Artists?.length > 0 && (
+              {song.artists?.length > 0 && (
                 <Text
                   className="text-gray-400 text-base mt-1"
                   numberOfLines={1}
                 >
-                  {song.Artists.map((a) => a.name).join(", ")}
+                  {song.artists.map((a) => a.name).join(", ")}
                 </Text>
               )}
             </View>

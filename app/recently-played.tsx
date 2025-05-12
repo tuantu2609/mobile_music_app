@@ -12,6 +12,8 @@ import useSongList from "@/services/useSongList";
 import { usePlayerStore } from "@/store/usePlayerStore";
 import { icons } from "@/constants/icons";
 
+import { Song } from "@/interfaces/interfaces";
+
 export default function RecentlyPlayedScreen() {
   const { data: songs, loading, error } = useSongList();
   const router = useRouter();
@@ -49,7 +51,7 @@ export default function RecentlyPlayedScreen() {
 
       {/* Song list */}
       <ScrollView showsVerticalScrollIndicator={false}>
-        {songs?.map((song) => (
+        {songs?.map((song: Song) => (
           <TouchableOpacity
             key={song.id}
             className="flex-row items-center mb-5"
@@ -57,10 +59,12 @@ export default function RecentlyPlayedScreen() {
               await usePlayerStore.getState().loadSong({
                 id: song.id,
                 title: song.title,
-                subtitle: song.Artists?.[0]?.name ?? "Unknown Artist",
-                image: song.album_cover,
+                artists: song.artists ?? [],
+                album_cover: song.album_cover,
                 url: song.url,
                 duration_ms: song.duration_ms,
+                isLiked: song.isLiked,
+                isDownloaded: song.isDownloaded,
               });
               router.back();
             }}
@@ -77,12 +81,12 @@ export default function RecentlyPlayedScreen() {
               >
                 {song.title}
               </Text>
-              {song.Artists?.length > 0 && (
+              {song.artists?.length > 0 && (
                 <Text
                   className="text-gray-400 text-base mt-1"
                   numberOfLines={1}
                 >
-                  {song.Artists.map((a) => a.name).join(", ")}
+                  {song.artists.map((a) => a.name).join(", ")}
                 </Text>
               )}
             </View>

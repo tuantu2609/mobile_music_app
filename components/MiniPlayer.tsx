@@ -6,7 +6,7 @@ import { useRouter } from "expo-router";
 
 const MiniPlayer = () => {
   const router = useRouter();
-  const { currentSong, isPlaying, position, duration, playPause } =
+  const { currentSong, isPlaying, position, duration, togglePlayback } =
     usePlayerStore();
   if (!currentSong) return null;
   return (
@@ -26,7 +26,7 @@ const MiniPlayer = () => {
           <View className="flex-row items-center flex-1 mr-4">
             <Image
               key={currentSong?.id}
-              source={{ uri: currentSong?.image }}
+              source={{ uri: currentSong?.album_cover }}
               className="w-12 h-12 rounded-md mr-3"
               resizeMode="cover"
             />
@@ -41,7 +41,7 @@ const MiniPlayer = () => {
             </View>
           </View>
 
-          <TouchableOpacity onPress={playPause}>
+          <TouchableOpacity onPress={togglePlayback}>
             <Image
               source={isPlaying ? icons.pause : icons.play}
               className="w-6 h-6 mr-2"

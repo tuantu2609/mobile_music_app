@@ -1,5 +1,6 @@
 import { View, Text, Image, Dimensions } from "react-native";
 const screenWidth = Dimensions.get("window").width;
+import { Album, Artist } from "../interfaces/interfaces";
 
 interface AlbumCardProps {
   album: Pick<Album, "name" | "images">;
