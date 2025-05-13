@@ -5,14 +5,13 @@
 
 // module.exports = withNativeWind(config, { input: "./app/global.css" });
 // metro.config.js
+// metro.config.js
 const { getDefaultConfig } = require("@expo/metro-config");
 const { withNativeWind } = require("nativewind/metro");
 
-// Lấy cấu hình gốc từ Expo
-const defaultConfig = getDefaultConfig(__dirname);
+let config = getDefaultConfig(__dirname); // <- EAS expects this
 
-// Apply NativeWind sau khi đã có cấu hình chuẩn từ Expo
-const config = withNativeWind(defaultConfig, {
+config = withNativeWind(config, {
   input: "./app/global.css",
 });
 
