@@ -1,5 +1,5 @@
 import { View, Text, Image, Dimensions } from "react-native";
-
+import { Artist } from "../interfaces/interfaces";
 const screenWidth = Dimensions.get("window").width;
 
 interface MixCardProps {

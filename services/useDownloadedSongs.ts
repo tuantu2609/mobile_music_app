@@ -3,11 +3,13 @@ import { getDownloadedSongs } from "./useDownloadedManager";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import NetInfo from "@react-native-community/netinfo";
 import { useAuth } from "@/app/auth/useAuth";
+import type { Song } from "@/interfaces/interfaces"; // ✅ thêm dòng này
 
 export default function useDownloadedSongs(userId: string | undefined) {
   const { loadToken, user } = useAuth();
 
-  return useQuery({
+  return useQuery<Song[]>({
+    // ✅ thêm kiểu ở đây
     queryKey: ["downloadedSongs", userId],
     enabled: !!userId,
     queryFn: async () => {
@@ -32,6 +34,5 @@ export default function useDownloadedSongs(userId: string | undefined) {
       }
     },
     staleTime: 1000 * 60 * 60,
-    cacheTime: 1000 * 60 * 60 * 24,
   });
 }

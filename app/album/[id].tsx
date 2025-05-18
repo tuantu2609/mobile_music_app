@@ -111,7 +111,7 @@ const AlbumDetails = () => {
               song={{
                 id: song.id,
                 title: song.title,
-                subtitle: song.Artists?.map((a: any) => a.name).join(", "),
+                artists: song.Artists ?? [],
                 image: song.album_cover,
               }}
             />

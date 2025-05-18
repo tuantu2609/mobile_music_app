@@ -22,14 +22,18 @@ export default function DownloadsScreen() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const { loadToken, user } = useAuth();
-  const { setCurrentSong } = usePlayerStore();
+  // const { setCurrentSong } = usePlayerStore();
+
   const { data: downloadedSongs = [] } = useDownloadedSongs(user?.id);
 
   // ✅ Refetch danh sách mỗi khi quay lại màn
   useFocusEffect(
     useCallback(() => {
       if (user?.id) {
-        queryClient.invalidateQueries(["downloadedSongs", user.id]);
+        // queryClient.invalidateQueries(["downloadedSongs", user.id]);
+        queryClient.invalidateQueries({
+          queryKey: ["downloadedSongs", user.id],
+        });
       }
     }, [user?.id])
   );
@@ -53,17 +57,30 @@ export default function DownloadsScreen() {
   const handlePlayOffline = async (item: any) => {
     const localPath = getLocalSongPath(item.id);
 
-    setCurrentSong({
-      ...item,
-      preview_url: localPath,
-    });
+    const songToSend = {
+      id: item.id,
+      title: item.title,
+      artists: item.artists ?? [],
+      album_cover: item.album_cover,
+      duration_ms: item.duration_ms,
+      isLiked: item.isLiked ?? false,
+      isDownloaded: true,
+      url: localPath,
+    };
+
+    // await usePlayerStore.getState().loadSong({
+    //   ...item,
+    //   url: localPath,
+    // });
+    await usePlayerStore.getState().loadSong(songToSend);
 
     router.push({
-      pathname: `/song/${item.id}`,
+      pathname: "/song/[id]",
       params: {
         id: item.id,
         fromDownloadedPage: "true",
-        song: encodeURIComponent(JSON.stringify(item)),
+        // song: encodeURIComponent(JSON.stringify(item)),
+        song: encodeURIComponent(JSON.stringify(songToSend)),
       },
     });
   };
@@ -108,7 +125,8 @@ export default function DownloadsScreen() {
             <View className="flex-1">
               <Text className="text-white font-medium">{item.title}</Text>
               <Text className="text-gray-400 text-sm">
-                {item.Artists?.map((a) => a.name).join(", ") || "Unknown Artist"}
+                {item.artists?.map((a) => a.name).join(", ") ||
+                  "Unknown Artist"}
               </Text>
             </View>
             <TouchableOpacity

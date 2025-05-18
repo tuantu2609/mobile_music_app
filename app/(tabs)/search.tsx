@@ -9,7 +9,7 @@ import {
   Pressable,
   Keyboard,
 } from "react-native";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { images } from "@/constants/images";
 import { icons } from "@/constants/icons";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -69,8 +69,8 @@ const recentSearches = [
   },
 ];
 
-const search = () => {
-  const [isSearching, setIsSearching] = React.useState(false);
+const Search = () => {
+  const [isSearching, setIsSearching] = useState(false);
   const router = useRouter();
 
   return (
@@ -248,4 +248,4 @@ const search = () => {
   );
 };
 
-export default search;
+export default Search;

@@ -1,218 +1,16 @@
-// import { Audio, AVPlaybackStatus } from "expo-av";
-// import { create } from "zustand";
-
-// import axios from "axios";
-// import Constants from "expo-constants";
-
-// const API_URL = Constants.expoConfig?.extra?.API_URL;
-
-// interface Song {
-//   id: string;
-//   title: string;
-//   subtitle?: string;
-//   image: string;
-//   url: string;
-//   duration_ms: number;
-// }
-
-// interface PlayerState {
-//   currentSong: Song | null;
-//   queue: Song[];
-//   history: Song[];
-//   isPlaying: boolean;
-//   position: number;
-//   duration: number;
-//   setCurrentSong: (song: Song) => void;
-//   setQueue: (queue: Song[]) => void;
-//   playNext: () => Promise<void>;
-//   playPrevious: () => Promise<void>;
-//   loadSong: (song: Song) => Promise<void>;
-//   playPause: () => Promise<void>;
-//   seekTo: (sec: number) => Promise<void>;
-//   resetPlayer: () => void;
-// }
-
-// let soundRef: Audio.Sound | null = null;
-// let intervalRef: number | null = null;
-// let loadVersionRef = 0;
-
-// export const usePlayerStore = create<PlayerState>((set, get) => ({
-//   currentSong: null,
-//   queue: [],
-//   history: [],
-//   isPlaying: false,
-//   position: 0,
-//   duration: 0,
-
-//   setCurrentSong: (song) => set({ currentSong: song }),
-//   setQueue: (queue) => set({ queue }),
-
-//   playNext: async () => {
-//     const { queue, currentSong, history, loadSong, setQueue } = get();
-
-//     if (queue.length > 0) {
-//       const [next, ...rest] = queue;
-
-//       if (currentSong) {
-//         set({ history: [...history, currentSong] });
-//       }
-
-//       await loadSong(next);
-
-//       try {
-//         const excludeIds = [
-//           currentSong?.id,
-//           ...rest.map((s) => s.id),
-//           ...history.map((s) => s.id),
-//         ]
-//           .filter(Boolean)
-//           .join(",");
-
-//         const response = await axios.get(
-//           `${API_URL}/songs/${next.id}/next?limit=1&exclude=${excludeIds}`
-//         );
-//         const newSong = response.data[0];
-//         const updatedQueue = [...rest];
-
-//         if (newSong && !updatedQueue.some((s) => s.id === newSong.id)) {
-//           updatedQueue.push(newSong);
-//         }
-
-//         setQueue(updatedQueue.slice(0, 5));
-//       } catch (err) {
-//         console.error("Error fetching new song for up next:", err);
-//         setQueue(rest);
-//       }
-//     } else {
-//       set({ isPlaying: false });
-//     }
-//   },
-
-//   playPrevious: async () => {
-//     const { history, loadSong } = get();
-//     if (history.length > 0) {
-//       const prev = history[history.length - 1];
-//       set({ history: history.slice(0, -1) });
-//       await loadSong(prev);
-//     } else {
-//       await get().seekTo(0);
-//     }
-//   },
-
-//   loadSong: async (song: Song) => {
-//     const version = ++loadVersionRef;
-
-//     const fixedSong = {
-//       ...song,
-//       image: song.image || (song as any).album_cover || "",
-//     };
-
-//     if (soundRef) {
-//       try {
-//         await soundRef.stopAsync();
-//         await soundRef.unloadAsync();
-//       } catch (e) {
-//         console.warn("Unload error:", e);
-//       }
-//       soundRef = null;
-//     }
-
-//     set({ currentSong: fixedSong, position: 0 });
-
-//     if (fixedSong.duration_ms) {
-//       set({ duration: fixedSong.duration_ms / 1000 });
-//     }
-
-//     try {
-//       const { sound } = await Audio.Sound.createAsync(
-//         { uri: fixedSong.url },
-//         { shouldPlay: true }
-//       );
-
-//       if (version !== loadVersionRef) {
-//         await sound.unloadAsync();
-//         return;
-//       }
-
-//       soundRef = sound;
-//       set({ isPlaying: true });
-
-//       if (intervalRef) clearInterval(intervalRef);
-
-//       intervalRef = setInterval(async () => {
-//         const status = (await sound.getStatusAsync()) as AVPlaybackStatus;
-//         if (status && "positionMillis" in status) {
-//           set({ position: status.positionMillis / 1000 });
-//           if (status.didJustFinish) {
-//             await get().playNext();
-//           }
-//         }
-//       }, 500);
-//     } catch (e) {
-//       console.warn("Load song error:", e);
-//     }
-//   },
-
-//   playPause: async () => {
-//     const { isPlaying } = get();
-//     if (soundRef) {
-//       if (isPlaying) {
-//         await soundRef.pauseAsync();
-//         set({ isPlaying: false });
-//       } else {
-//         await soundRef.playAsync();
-//         set({ isPlaying: true });
-//       }
-//     }
-//   },
-
-//   seekTo: async (sec: number) => {
-//     if (soundRef) {
-//       await soundRef.setPositionAsync(sec * 1000);
-//       set({ position: sec });
-//     }
-//   },
-
-//   resetPlayer: async () => {
-//     if (soundRef) {
-//       try {
-//         await soundRef.stopAsync();
-//         await soundRef.unloadAsync();
-//       } catch (e) {
-//         console.warn("Unload error on reset:", e);
-//       }
-//       soundRef = null;
-//     }
-
-//     if (intervalRef) {
-//       clearInterval(intervalRef);
-//       intervalRef = null;
-//     }
-
-//     set({
-//       currentSong: null,
-//       queue: [],
-//       history: [],
-//       isPlaying: false,
-//       position: 0,
-//       duration: 0,
-//     });
-//   },
-// }));
-
 import { create } from "zustand";
-import { Audio, AVPlaybackStatus } from "expo-av";
+import { Audio, AVPlaybackStatus,
+  InterruptionModeAndroid, //chạy nền
+  InterruptionModeIOS, // chạy nền
+  
+ } from "expo-av";
 
-
-interface Song {
-  id: string;
-  title: string;
-  subtitle?: string;
-  image: string;
-  url?: string;
-  preview_url?: string;
-  duration_ms: number;
-}
+import type { Song } from "@/interfaces/interfaces";
+import { useAuthStore } from "./useAuthStore";
+import { fetchSongById } from "@/services/useSongById";
+// import { useAuthStore } from "./useAuthStore";
+// import { getTotalLikesOfSong, getUserLikedSongs } from "@/services/useAuth";
+// import { isSongDownloaded } from "@/services/useDownloadedManager";
 
 interface PlayerState {
   currentSong: Song | null;
@@ -226,10 +24,11 @@ interface PlayerState {
   playNext: () => Promise<void>;
   playPrevious: () => Promise<void>;
   loadSong: (song: Song) => Promise<void>;
-  playPause: () => Promise<void>;
-  pause: () => Promise<void>; // ✅ ADDED
+  togglePlayback: () => Promise<void>;
+  forcePause: () => Promise<void>;
   seekTo: (sec: number) => Promise<void>;
   resetPlayer: () => void;
+  unload: () => Promise<void>;
 }
 
 let soundRef: Audio.Sound | null = null;
@@ -247,162 +46,45 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
   setCurrentSong: (song) => set({ currentSong: song }),
   setQueue: (queue) => set({ queue }),
 
-  // playNext: async () => {
-  //   const { queue, currentSong, history, loadSong, setQueue } = get();
-  //   if (queue.length === 0) {
-  //     set({ isPlaying: false });
-  //     return;
-  //   }
-
-  //   const nextSong = queue[0];
-  //   set({
-  //     history: currentSong ? [...history, currentSong] : history,
-  //     queue: queue.slice(1),
-  //   });
-  //   setCurrentSong(nextSong);
-  //   await loadSong(nextSong);
-
-  //   try {
-  //     const excludeIds = [
-  //       currentSong?.id,
-  //       ...queue.slice(1).map((s) => s.id),
-  //       ...history.map((s) => s.id),
-  //     ]
-  //       .filter(Boolean)
-  //       .join(",");
-
-  //     const response = await axios.get(
-  //       `${API_URL}/songs/${nextSong.id}/next?limit=1&exclude=${excludeIds}`
-  //     );
-  //     const newSong = response.data[0];
-  //     const updatedQueue = [...queue.slice(1)];
-
-  //     if (newSong && !updatedQueue.some((s) => s.id === newSong.id)) {
-  //       updatedQueue.push(newSong);
-  //     }
-
-  //     setQueue(updatedQueue.slice(0, 5));
-  //   } catch (err) {
-  //     console.error("Error fetching new song for up next:", err);
-  //     setQueue(queue.slice(1));
-  //   }
-  // },
-  playNext: async () => {
-    const { queue, currentSong, history, loadSong, setQueue } = get();
-
-    if (queue.length === 0) {
-      console.log("No songs in the queue to play next.");
-      return; // Dừng lại nếu không có bài hát
-    }
-
-    if (queue.length > 0) {
-      const [next, ...rest] = queue;
-      if (currentSong) {
-        set({ history: [...history, currentSong] });
-      }
-
-      await loadSong(next); // Phát bài tiếp theo
-
-      setQueue(rest); // Cập nhật lại queue với bài hát còn lại
-    } else {
-      set({ isPlaying: false });
-    }
-  },
-  playPrevious: async () => {
-    const { history, loadSong, setCurrentSong } = get();
-    if (history.length > 0) {
-      const prevSong = history[history.length - 1];
-      set({
-        history: history.slice(0, -1),
-        queue: [get().currentSong!, ...get().queue],
-      });
-      setCurrentSong(prevSong);
-      await loadSong(prevSong);
-    } else {
-      await get().seekTo(0);
-    }
-  },
-
-  // loadSong: async (song: Song) => {
-  //   const version = ++loadVersionRef;
-
-  //   const fixedSong = {
-  //     ...song,
-  //     image: song.image || (song as any).album_cover || "",
-  //   };
-
-  //   if (soundRef) {
-  //     try {
-  //       await soundRef.stopAsync();
-  //       await soundRef.unloadAsync();
-  //     } catch (e) {
-  //       console.warn("Unload error:", e);
-  //     }
-  //     soundRef = null;
-  //   }
-
-  //   set({ currentSong: fixedSong, position: 0 });
-
-  //   if (fixedSong.duration_ms) {
-  //     set({ duration: fixedSong.duration_ms / 1000 });
-  //   }
-
-  //   try {
-  //     const { sound } = await Audio.Sound.createAsync(
-  //       { uri: fixedSong.url ?? "" },
-  //       { shouldPlay: true }
-  //     );
-
-  //     if (version !== loadVersionRef) {
-  //       await sound.unloadAsync();
-  //       return;
-  //     }
-
-  //     soundRef = sound;
-  //     set({ isPlaying: true });
-
-  //     if (intervalRef) clearInterval(intervalRef);
-
-  //     intervalRef = setInterval(async () => {
-  //       const status = (await sound.getStatusAsync()) as AVPlaybackStatus;
-  //       if (status && "positionMillis" in status) {
-  //         set({ position: status.positionMillis / 1000 });
-  //         if (status.didJustFinish) {
-  //           await get().playNext();
-  //         }
-  //       }
-  //     }, 500);
-  //   } catch (e) {
-  //     console.warn("Load song error:", e);
-  //   }
-  // },
   loadSong: async (song: Song) => {
+    //dùng cho chạy nền 
+    await Audio.setAudioModeAsync({
+      staysActiveInBackground: true,
+      playsInSilentModeIOS: true,
+      shouldDuckAndroid: true,
+      interruptionModeIOS: InterruptionModeIOS.DoNotMix,
+      interruptionModeAndroid: InterruptionModeAndroid.DoNotMix,
+    });
+    
+    
     const version = ++loadVersionRef;
+    const uri = song.url;
 
-    const fixedSong = {
-      ...song,
-      image: song.image || (song as any).album_cover || "",
-    };
+    if (!uri) {
+      console.warn("⚠️ Không có đường dẫn âm thanh để phát");
+      return;
+    }
 
     if (soundRef) {
       try {
         await soundRef.stopAsync();
         await soundRef.unloadAsync();
       } catch (e) {
-        console.warn("Unload error:", e);
+        console.warn("🔁 Unload error:", e);
       }
       soundRef = null;
     }
 
-    set({ currentSong: fixedSong, position: 0 });
+    // ✅ Dùng nguyên song truyền vào
+    set({ currentSong: song, position: 0 });
 
-    if (fixedSong.duration_ms) {
-      set({ duration: fixedSong.duration_ms / 1000 });
+    if (song.duration_ms) {
+      set({ duration: song.duration_ms / 1000 });
     }
 
     try {
       const { sound } = await Audio.Sound.createAsync(
-        { uri: fixedSong.url },
+        { uri },
         { shouldPlay: true }
       );
 
@@ -429,7 +111,8 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
       console.warn("Load song error:", e);
     }
   },
-  playPause: async () => {
+
+  togglePlayback: async () => {
     const { isPlaying } = get();
     if (soundRef) {
       if (isPlaying) {
@@ -442,7 +125,7 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
     }
   },
 
-  pause: async () => {
+  forcePause: async () => {
     if (soundRef) {
       await soundRef.pauseAsync();
       set({ isPlaying: false });
@@ -456,13 +139,14 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
     }
   },
 
+  //Dùng khi người dùng logout, đổi tài khoản, reset toàn bộ về mặc định
   resetPlayer: async () => {
     if (soundRef) {
       try {
         await soundRef.stopAsync();
         await soundRef.unloadAsync();
       } catch (e) {
-        console.warn("Unload error on reset:", e);
+        console.warn("❌ Reset unload error:", e);
       }
       soundRef = null;
     }
@@ -481,5 +165,58 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
       duration: 0,
     });
   },
-}));
 
+  // Dùng khi chuyển sang bài hát mới, không cần reset toàn bộ
+  unload: async () => {
+    if (soundRef) {
+      await soundRef.unloadAsync();
+      soundRef = null;
+      set({ isPlaying: false });
+    }
+  },
+
+  playNext: async () => {
+    const { queue, currentSong, history, loadSong, setQueue } = get();
+
+    if (queue.length === 0) {
+      set({ isPlaying: false });
+      return;
+    }
+
+    const [next, ...rest] = queue;
+    if (currentSong) {
+      set({ history: [...history, currentSong] });
+    }
+    let detailedSong = next;
+
+    try {
+      const token = useAuthStore.getState().token;
+      if (token) {
+        const songFromApi = await fetchSongById(next.id, token); // Gọi API nếu online
+        detailedSong = {
+          ...songFromApi,
+          artists: songFromApi.Artists ?? [], // <-- chuẩn hóa field
+        };
+      }
+    } catch (e) {
+      console.warn("⚠️ Không thể fetch chi tiết bài hát:", e);
+    }
+    await loadSong(detailedSong);
+    setQueue(rest);
+  },
+
+  playPrevious: async () => {
+    const { history, loadSong, setCurrentSong, currentSong, queue } = get();
+    if (history.length > 0) {
+      const prevSong = history[history.length - 1];
+      set({
+        history: history.slice(0, -1),
+        queue: [currentSong!, ...queue],
+      });
+      setCurrentSong(prevSong);
+      await loadSong(prevSong);
+    } else {
+      await get().seekTo(0);
+    }
+  },
+}));

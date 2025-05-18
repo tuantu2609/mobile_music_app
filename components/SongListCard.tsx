@@ -7,7 +7,7 @@ const screenWidth = Dimensions.get("window").width;
 type Song = {
   id: string;
   title: string;
-  subtitle?: string;
+  artists: { id: string; name: string }[];
   image: any; // URI string hoặc require()
 };
 
@@ -34,13 +34,13 @@ const SongListCard = ({ song }: Props) => {
           >
             {song.title}
           </Text>
-          {song.subtitle && (
+          {song.artists && (
             <Text
               className="text-white/60 text-xs"
               numberOfLines={1}
               ellipsizeMode="tail"
             >
-              {song.subtitle}
+              {song.artists.map((artist) => artist.name).join(", ")}
             </Text>
           )}
         </View>
