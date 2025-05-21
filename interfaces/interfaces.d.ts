@@ -49,5 +49,4 @@ export interface Playlist {
   external_url: string;
 }
 
-// 👇 Dòng này giúp TypeScript hiểu đây là một module
 export {};

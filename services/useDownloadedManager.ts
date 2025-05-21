@@ -5,12 +5,12 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const API_URL = Constants.expoConfig?.extra?.API_URL;
 
-// ✅ Trả về đường dẫn local của file nhạc
+// Trả về đường dẫn local của file nhạc
 export const getLocalSongPath = (songId: string) => {
   return `${FileSystem.documentDirectory}songs/${songId}.mp3`;
 };
 
-// ✅ Kiểm tra xem bài hát đã tải chưa (gồm cả local file & API check)
+// Kiểm tra xem bài hát đã tải chưa (gồm cả local file & API check)
 export const isSongDownloaded = async (
   songId: string,
   userId: string,
@@ -32,7 +32,7 @@ export const isSongDownloaded = async (
   }
 };
 
-// ✅ Tải bài hát về thiết bị
+// Tải bài hát về thiết bị
 export const downloadSongToDevice = async (
   song: { id: string; url: string },
   userId: string,
@@ -67,7 +67,7 @@ export const downloadSongToDevice = async (
     }
   );
 
-  // ✅ Lưu vào AsyncStorage cache
+  // Lưu vào AsyncStorage cache
   try {
     const cacheKey = `cached_downloaded_songs_${userId}`;
     const existing = await AsyncStorage.getItem(cacheKey);
@@ -84,7 +84,7 @@ export const downloadSongToDevice = async (
   }
 };
 
-// ✅ Xoá bài hát khỏi thiết bị và backend
+// Xoá bài hát khỏi thiết bị và backend
 export const deleteDownloadedSong = async (
   songId: string,
   userId: string,
@@ -96,7 +96,6 @@ export const deleteDownloadedSong = async (
     // Xoá local file
     await FileSystem.deleteAsync(path, { idempotent: true });
 
-    // Gọi backend để xoá khỏi user download list
     await axios.delete(`${API_URL}/api/users/download-song/${songId}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
@@ -113,10 +112,12 @@ export const deleteDownloadedSong = async (
   }
 };
 
-// ✅ Lấy danh sách bài hát đã tải (từ backend)
 export const getDownloadedSongs = async (userId: string, token: string) => {
-  const res = await axios.get(`${API_URL}/api/users/${userId}/downloaded-songs`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
+  const res = await axios.get(
+    `${API_URL}/api/users/${userId}/downloaded-songs`,
+    {
+      headers: { Authorization: `Bearer ${token}` },
+    }
+  );
   return res.data;
 };

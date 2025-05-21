@@ -2,76 +2,151 @@ import {
   View,
   Text,
   Image,
-  FlatList,
+  // FlatList,
   TextInput,
   ScrollView,
   TouchableOpacity,
   Pressable,
   Keyboard,
 } from "react-native";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { images } from "@/constants/images";
 import { icons } from "@/constants/icons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
+import axios from "axios";
+import Constants from "expo-constants";
 
-const trendingArtists = [
-  { id: "1", name: "Soobin Hoàng Sơn", image: images.artist },
-  { id: "2", name: "Childish Gambino", image: images.artist },
-  { id: "3", name: "Marvin Gaye", image: images.artist },
-  { id: "4", name: "Kanye West", image: images.artist },
-  { id: "5", name: "Justin Beiber", image: images.artist },
-];
+import { useAuthStore } from "@/store/useAuthStore";
+import { usePlayerStore } from "@/store/usePlayerStore";
+import { fetchSongById } from "@/services/useSongById";
 
-const genres = [
-  { id: "1", title: "TAMIL", image: images.gener },
-  { id: "2", title: "INTERNATIONAL", image: images.gener },
-  { id: "3", title: "POP", image: images.gener },
-  { id: "4", title: "HIP-HOP", image: images.gener },
-  { id: "5", title: "DANCE", image: images.gener },
-  { id: "6", title: "COUNTRY", image: images.gener },
-  { id: "7", title: "INDIE", image: images.gener },
-  { id: "8", title: "JAZZ", image: images.gener },
-  { id: "9", title: "PUNK", image: images.gener },
-  { id: "10", title: "R&B", image: images.gener },
-  { id: "11", title: "DISCO", image: images.gener },
-  { id: "12", title: "ROCK", image: images.gener },
-];
+type SearchResultItem = {
+  id: string;
+  type: "Song" | "Artist" | "Album" | "Playlist";
+  title: string;
+  subtitle: string;
+  image: string | { uri: string };
+};
 
-const recentSearches = [
-  {
-    id: "1",
-    title: "You (feat. Travis Scott)",
-    type: "Song",
-    subtitle: "Don Toliver",
-    image: images.song,
-  },
-  {
-    id: "2",
-    title: "John Wick: Chapter 4 (Original Soundtrack)",
-    type: "Album",
-    subtitle: "Tyler Bates, Joel J. Richard",
-    image: images.song2,
-  },
-  {
-    id: "3",
-    title: "Maroon 5",
-    type: "Artist",
-    subtitle: "",
-    image: images.song3,
-  },
-  {
-    id: "4",
-    title: "Phonk Madness",
-    type: "Playlist",
-    subtitle: "",
-    image: images.song2,
-  },
-];
+const API_URL = Constants.expoConfig?.extra?.API_URL;
 
 const Search = () => {
   const [isSearching, setIsSearching] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<SearchResultItem[]>([]);
   const router = useRouter();
+  const { token, user } = useAuthStore();
+
+  const debounceTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const handleSongPress = async (item: SearchResultItem) => {
+    if (!user || !token) {
+      console.log("Chưa đăng nhập");
+      return;
+    }
+
+    try {
+      const detailedSong = await fetchSongById(item.id, token);
+
+      await usePlayerStore.getState().loadSong({
+        id: detailedSong.id,
+        title: detailedSong.title,
+        artists: detailedSong.Artists ?? [],
+        album_cover: detailedSong.album_cover,
+        url: detailedSong.url,
+        duration_ms: detailedSong.duration_ms,
+        isLiked: detailedSong.isLiked,
+        isDownloaded: detailedSong.isDownloaded,
+      });
+
+      router.push({ pathname: "/song/[id]", params: { id: item.id } });
+    } catch (error) {
+      console.error("Error fetching song detail:", error);
+    }
+  };
+
+  const handleSearch = async (query: string) => {
+    if (!query.trim()) {
+      setSearchResults([]);
+      return;
+    }
+
+    try {
+      const response = await axios.get(
+        `${API_URL}/search?q=${encodeURIComponent(query)}`
+      );
+      const { songs, artists, albums, playlists } = response.data;
+
+      const results: SearchResultItem[] = [
+        ...songs.map((song: any) => ({
+          id: song.id,
+          type: "Song",
+          title: song.title,
+          subtitle: song.Artists?.map((a: any) => a.name).join(", ") || "",
+          image: { uri: song.album_cover },
+        })),
+        ...artists.map((artist: any) => ({
+          id: artist.id,
+          type: "Artist",
+          title: artist.name,
+          subtitle: `${artist.followers?.toLocaleString()} followers` || "",
+          image: artist.image ? { uri: artist.image } : images.artist,
+        })),
+        ...albums.map((album: any) => ({
+          id: album.id,
+          type: "Album",
+          title: album.name,
+          subtitle: album.label || "",
+          image: { uri: album.album_cover },
+        })),
+        ...playlists.map((playlist: any) => ({
+          id: playlist.id,
+          type: "Playlist",
+          title: playlist.name,
+          subtitle: playlist.creatorName || "",
+          image: { uri: playlist.image },
+        })),
+      ];
+
+      setSearchResults(results);
+    } catch (error: unknown) {
+      console.error("Search failed:", (error as Error).message);
+    }
+  };
+
+  // ✅ Debounce search
+  useEffect(() => {
+    if (debounceTimeout.current) clearTimeout(debounceTimeout.current);
+
+    if (!searchQuery.trim()) {
+      setSearchResults([]);
+      return;
+    }
+
+    debounceTimeout.current = setTimeout(() => {
+      handleSearch(searchQuery.trim());
+    }, 500);
+
+    return () => {
+      if (debounceTimeout.current) clearTimeout(debounceTimeout.current);
+    };
+  }, [searchQuery]);
+
+  const getTypeIcon = (type: SearchResultItem["type"]) => {
+    switch (type) {
+      case "Song":
+        return "🎵";
+      case "Artist":
+        return "👤";
+      case "Album":
+        return "💿";
+      case "Playlist":
+        return "📀";
+      default:
+        return "";
+    }
+  };
 
   return (
     <SafeAreaView className="flex-1 bg-primary">
@@ -83,7 +158,7 @@ const Search = () => {
       />
 
       <ScrollView
-        contentContainerStyle={{ paddingBottom: 24 }}
+        contentContainerStyle={{ paddingBottom: 64 }}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
@@ -95,6 +170,10 @@ const Search = () => {
             tintColor="gray"
           />
           <TextInput
+            value={searchQuery}
+            onChangeText={(text) => {
+              setSearchQuery(text); // ✅ chỉ set state, không gọi search trực tiếp
+            }}
             onFocus={() => setIsSearching(true)}
             placeholder="Search songs, artist, album or playlist"
             placeholderTextColor="#999"
@@ -103,146 +182,79 @@ const Search = () => {
         </View>
 
         {isSearching ? (
-          <Pressable
-            onPress={() => {
-              setIsSearching(false);
-              Keyboard.dismiss();
-            }}
-          >
-            <Text className="text-white text-base font-semibold mx-4 mb-3">
-              Recent searches
-            </Text>
-
-            {recentSearches.map((item) => (
-              <View
-                key={item.id}
-                className="flex-row items-center justify-between px-4 mb-4"
-              >
-                <TouchableOpacity
-                  className="flex-row items-center flex-1"
-                  onPress={() => {
-                    setIsSearching(false);
-                    Keyboard.dismiss();
-
-                    const pathMap = {
-                      Song: "/song/[id]",
-                      Album: "/album/[id]",
-                      Artist: "/artist/[id]",
-                      Playlist: "/playlist/[id]",
-                    } as const;
-
-                    const path = pathMap[item.type as keyof typeof pathMap];
-
-                    router.push({
-                      pathname: path,
-                      params: { id: item.id },
-                    });
-                  }}
-                >
-                  <Image
-                    source={item.image}
-                    className="w-12 h-12 rounded-md mr-3"
-                    resizeMode="cover"
-                  />
-                  <View style={{ flexShrink: 1 }}>
-                    <Text
-                      className="text-white font-semibold"
-                      numberOfLines={1}
-                      ellipsizeMode="tail"
-                    >
-                      {item.title}
-                    </Text>
-                    <Text
-                      className="text-white/60 text-xs"
-                      numberOfLines={1}
-                      ellipsizeMode="tail"
-                    >
-                      {item.type}
-                      {item.subtitle ? ` • ${item.subtitle}` : ""}
-                    </Text>
-                  </View>
-                </TouchableOpacity>
-
-                <Text className="text-white/60 text-xl ml-3">×</Text>
-              </View>
-            ))}
-
-            <Text className="text-right text-white/40 text-sm mr-4 mt-4">
-              Clear history
-            </Text>
-
-            {/* Khoảng trống để bấm */}
-            <View className="h-40" />
-          </Pressable>
-        ) : (
           <>
-            {/* Trending section */}
-            <View className="flex-row items-center mb-4 mx-4">
-              <Image
-                source={icons.trending}
-                style={{ width: 18, height: 18, marginRight: 6 }}
-                resizeMode="contain"
-                tintColor="white"
-              />
-              <Text className="text-white font-semibold text-lg">
-                Trending artists
-              </Text>
-            </View>
+            {searchQuery.trim() !== "" ? (
+              <View>
+                <Text className="text-white text-base font-semibold mx-4 mb-3">
+                  Search results
+                </Text>
 
-            <FlatList
-              className="mx-4 mb-4"
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              data={trendingArtists}
-              keyExtractor={(item) => item.id}
-              renderItem={({ item }) => (
-                <TouchableOpacity
-                  className="items-center mr-5"
-                  onPress={() => {
-                    router.push({
-                      pathname: "/artist/[id]",
-                      params: { id: item.id },
-                    });
-                  }}
-                >
-                  <Image
-                    source={item.image}
-                    className="w-16 h-16 rounded-full mb-1"
-                    resizeMode="cover"
-                  />
-                  <Text className="text-white text-xs text-center w-20">
-                    {item.name}
+                {searchResults.map((item) => (
+                  <TouchableOpacity
+                    key={item.id}
+                    className="flex-row items-center px-4 mb-4"
+                    onPress={() => {
+                      if (item.type === "Song") {
+                        handleSongPress(item);
+                      } else {
+                        const pathMap = {
+                          Song: "/song/[id]",
+                          Album: "/album/[id]",
+                          Artist: "/artist/[id]",
+                          Playlist: "/playlist/[id]",
+                        } as const;
+                        const path = pathMap[item.type];
+                        router.push({
+                          pathname: path,
+                          params: { id: item.id },
+                        });
+                      }
+                    }}
+                  >
+                    <Image
+                      source={
+                        typeof item.image === "string"
+                          ? { uri: item.image }
+                          : item.image
+                      }
+                      className="w-12 h-12 rounded-md mr-3"
+                      resizeMode="cover"
+                    />
+                    <View style={{ flexShrink: 1 }}>
+                      <Text
+                        className="text-white font-semibold"
+                        numberOfLines={1}
+                      >
+                        {getTypeIcon(item.type)} {item.title}
+                      </Text>
+                      <Text className="text-white/60 text-xs" numberOfLines={1}>
+                        {item.type}
+                        {item.subtitle ? ` • ${item.subtitle}` : ""}
+                      </Text>
+                    </View>
+                  </TouchableOpacity>
+                ))}
+
+                {searchResults.length === 0 && (
+                  <Text className="text-white text-center mt-4">
+                    No results found.
                   </Text>
-                </TouchableOpacity>
-              )}
-            />
-
-            {/* Browse */}
-            <View className="mx-4 mb-3">
-              <Text className="text-white font-semibold text-lg">Browse</Text>
-            </View>
-
-            <View className="flex-row flex-wrap justify-between mx-4 pb-20">
-              {genres.map((item) => (
-                <View
-                  key={item.id}
-                  className="w-[48%] h-24 mb-4 rounded-xl overflow-hidden"
-                >
-                  <Image
-                    source={item.image}
-                    className="w-full h-full absolute"
-                    resizeMode="cover"
-                  />
-                  <View className="flex-1 items-center justify-end bg-black/50 pb-2">
-                    <Text className="text-white font-bold text-sm">
-                      {item.title}
-                    </Text>
-                  </View>
-                </View>
-              ))}
-            </View>
+                )}
+              </View>
+            ) : (
+              <Pressable
+                onPress={() => {
+                  setIsSearching(false);
+                  Keyboard.dismiss();
+                }}
+              >
+                <Text className="text-white text-base font-semibold mx-4 mb-3">
+                  Recent searches
+                </Text>
+              </Pressable>
+            )}
           </>
-        )}
+        ) : null}
       </ScrollView>
     </SafeAreaView>
   );

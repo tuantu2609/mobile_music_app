@@ -32,7 +32,7 @@ import useAlbumList from "@/services/useAlbumList";
 // import { useAuth } from "@/app/auth/useAuth";
 import { useAuthStore } from "@/store/useAuthStore";
 import Constants from "expo-constants";
-import axios from "axios";
+// import axios from "axios";
 const API_URL = Constants.expoConfig?.extra?.API_URL;
 
 export default function Index() {
@@ -128,7 +128,7 @@ export default function Index() {
                 </Text>
               </View>
 
-              <Text className="text-white text-3xl">Good Evening</Text>
+              <Text className="text-white text-3xl">Good Day</Text>
             </View>
 
             <View className="flex-row items-center">

@@ -3,20 +3,18 @@ import { getDownloadedSongs } from "./useDownloadedManager";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import NetInfo from "@react-native-community/netinfo";
 import { useAuth } from "@/app/auth/useAuth";
-import type { Song } from "@/interfaces/interfaces"; // ✅ thêm dòng này
+import type { Song } from "@/interfaces/interfaces";
 
 export default function useDownloadedSongs(userId: string | undefined) {
   const { loadToken, user } = useAuth();
 
   return useQuery<Song[]>({
-    // ✅ thêm kiểu ở đây
     queryKey: ["downloadedSongs", userId],
     enabled: !!userId,
     queryFn: async () => {
       const id = userId || (await AsyncStorage.getItem("local_user_id"));
       const token = await loadToken();
 
-      // 🔒 Bảo vệ thêm nếu token không khớp user
       if (!token || !id || user?.id !== id) {
         throw new Error("Token mismatch or missing user");
       }
